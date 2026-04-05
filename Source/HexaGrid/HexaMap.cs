@@ -8,7 +8,6 @@
 using Jih.Unity.Infrastructure.Collections;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 
 namespace Jih.Unity.Infrastructure.HexaGrid
@@ -274,23 +273,75 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         }
         public HexaEdge? GetEdge(HexaEdgeOrientation orientation, int x, int y)
         {
-            switch (orientation)
+            HexaEdge?[,] dest = orientation switch
             {
-                case HexaEdgeOrientation.Horizontal:
-                    if (x < 0 || _horizontalEdges.GetLength(1) <= x || y < 0 || _horizontalEdges.GetLength(0) <= y)
-                    {
-                        return null;
-                    }
-                    return _horizontalEdges[y, x];
+                HexaEdgeOrientation.Horizontal => _horizontalEdges,
+                HexaEdgeOrientation.Vertical => _verticalEdges,
+                _ => throw new NotImplementedException(),
+            };
 
-                case HexaEdgeOrientation.Vertical:
-                    if (x < 0 || _verticalEdges.GetLength(1) <= x || y < 0 || _verticalEdges.GetLength(0) <= y)
-                    {
-                        return null;
-                    }
-                    return _verticalEdges[y, x];
+            if (x < 0 || dest.GetLength(1) <= x || y < 0 || dest.GetLength(0) <= y)
+            {
+                return null;
+            }
+            return dest[y, x];
+        }
 
-                default: throw new ArgumentException("Invalid edge orientation.", nameof(orientation));
+        public IEnumerable<HexaCell> EnumerateCells()
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    yield return _cells[y, x];
+                }
+            }
+        }
+
+        public IEnumerable<HexaVertex> EnumerateVertices()
+        {
+            int height = _vertices.GetLength(0);
+            int width = _vertices.GetLength(1);
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    HexaVertex? v = _vertices[y, x];
+                    if (v is not null)
+                    {
+                        yield return v;
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<HexaEdge> EnumerateEdges()
+        {
+            int height = _horizontalEdges.GetLength(0);
+            int width = _horizontalEdges.GetLength(1);
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    HexaEdge? e = _horizontalEdges[y, x];
+                    if (e is not null)
+                    {
+                        yield return e;
+                    }
+                }
+            }
+
+            height = _verticalEdges.GetLength(0);
+            width = _verticalEdges.GetLength(1);
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    yield return _verticalEdges[y, x];
+                }
             }
         }
 
