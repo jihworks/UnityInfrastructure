@@ -19,4 +19,16 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             Y = y;
         }
     }
+
+    public enum HexaEdgeOrientation
+    {
+        /// <summary>
+        /// <c>^</c> or <c>v</c>
+        /// </summary>
+        Horizontal,
+        /// <summary>
+        /// <c>|</c>
+        /// </summary>
+        Vertical,
+    }
 }

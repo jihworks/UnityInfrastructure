@@ -5,6 +5,8 @@
 
 #nullable enable
 
+using System.Runtime.CompilerServices;
+
 namespace Jih.Unity.Infrastructure.HexaGrid
 {
     public enum HexaNeighborPosition
@@ -35,6 +37,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
 
     public static class HexaPositionEx
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaCoord GetOffset(this HexaNeighborPosition position)
         {
             return _neighborsOffsets[(int)position];
@@ -42,6 +45,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         /// <summary>
         /// Get next CW position.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaNeighborPosition Next(this HexaNeighborPosition position)
         {
             return (HexaNeighborPosition)((int)position).GetNextCircularIndex(6);
@@ -49,6 +53,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         /// <summary>
         /// Get next CCW position.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaNeighborPosition Prev(this HexaNeighborPosition position)
         {
             return (HexaNeighborPosition)((int)position).GetPrevCircularIndex(6);
@@ -56,31 +61,37 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         /// <summary>
         /// Get point-symmetry position from center of a cell.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaNeighborPosition Flip(this HexaNeighborPosition position)
         {
             return (HexaNeighborPosition)(((int)position + 3) % 6);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaCoord GetOffset(this HexaDiagonalPosition position)
         {
             return _diagonalOffsets[(int)position];
         }
         /// <inheritdoc cref="Next(HexaNeighborPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaDiagonalPosition Next(this HexaDiagonalPosition position)
         {
             return (HexaDiagonalPosition)((int)position).GetNextCircularIndex(6);
         }
         /// <inheritdoc cref="Prev(HexaNeighborPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaDiagonalPosition Prev(this HexaDiagonalPosition position)
         {
             return (HexaDiagonalPosition)((int)position).GetPrevCircularIndex(6);
         }
         /// <inheritdoc cref="Flip(HexaNeighborPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaDiagonalPosition Flip(this HexaDiagonalPosition position)
         {
             return (HexaDiagonalPosition)(((int)position + 3) % 6);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaCoordF GetOffset(this HexaVertexPosition position)
         {
             return _vertexOffsets[(int)position];
@@ -92,60 +103,72 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         /// Returned <c>0º</c> means <c>D90</c>.<br/>
         /// The returned value is compatible with <see cref="MathEx.RadiusVector(float)"/>.
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GetRadiusDegrees(this HexaVertexPosition position)
         {
             return ((int)position) * 60f - 90f;
         }
         /// <inheritdoc cref="Next(HexaNeighborPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaVertexPosition Next(this HexaVertexPosition position)
         {
             return (HexaVertexPosition)((int)position).GetNextCircularIndex(6);
         }
         /// <inheritdoc cref="Prev(HexaNeighborPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaVertexPosition Prev(this HexaVertexPosition position)
         {
             return (HexaVertexPosition)((int)position).GetPrevCircularIndex(6);
         }
         /// <inheritdoc cref="Flip(HexaNeighborPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaVertexPosition Flip(this HexaVertexPosition position)
         {
             return (HexaVertexPosition)(((int)position + 3) % 6);
         }
 
         /// <inheritdoc cref="GetRadiusDegrees(HexaVertexPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GetRadiusDegrees(this HexaEdgePosition position)
         {
             return ((int)position) * 60f - 60f;
         }
         /// <inheritdoc cref="Next(HexaNeighborPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaEdgePosition Next(this HexaEdgePosition position)
         {
             return (HexaEdgePosition)((int)position).GetNextCircularIndex(6);
         }
         /// <inheritdoc cref="Prev(HexaNeighborPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaEdgePosition Prev(this HexaEdgePosition position)
         {
             return (HexaEdgePosition)((int)position).GetPrevCircularIndex(6);
         }
         /// <inheritdoc cref="Flip(HexaNeighborPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaEdgePosition Flip(this HexaEdgePosition position)
         {
             return (HexaEdgePosition)(((int)position + 3) % 6);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaEdgePosition ConvertToEdge(this HexaNeighborPosition position)
         {
             return (HexaEdgePosition)position;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaNeighborPosition ConvertToNeighbor(this HexaEdgePosition position)
         {
             return (HexaNeighborPosition)position;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaVertexPosition ConvertToVertex(this HexaDiagonalPosition position)
         {
             return (HexaVertexPosition)position;
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaDiagonalPosition ConvertToDiagonal(this HexaVertexPosition position)
         {
             return (HexaDiagonalPosition)position;

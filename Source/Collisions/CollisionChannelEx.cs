@@ -5,6 +5,8 @@
 
 #nullable enable
 
+using System.Runtime.CompilerServices;
+
 namespace Jih.Unity.Infrastructure.Collisions
 {
     public static class CollisionChannelEx
@@ -14,6 +16,7 @@ namespace Jih.Unity.Infrastructure.Collisions
 
         public const uint Default = 1u;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Has(this uint mask, uint flag)
         {
             return (mask & flag) != 0u;

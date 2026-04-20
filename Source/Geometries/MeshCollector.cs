@@ -908,7 +908,7 @@ namespace Jih.Unity.Infrastructure.Geometries
 
                             if (list.Count > byte.MaxValue)
                             {
-                                throw new InvalidOperationException($"Bone weight count cannot bigger than 255(byte.MaxValue). It is Unity's limitation.");
+                                throw new InvalidOperationException("Bone weight count for a vertex cannot greater than 255(byte.MaxValue). It is Unity's limitation.");
                             }
                             counts[i] = (byte)list.Count;
 
@@ -1134,7 +1134,7 @@ namespace Jih.Unity.Infrastructure.Geometries
         All = 0xffffffff,
     }
 
-    public static class MeshCollectorEx
+    public static class AdditionalAttributesEx
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Has(this AdditionalAttributes left, AdditionalAttributes right)
