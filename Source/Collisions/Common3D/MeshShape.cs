@@ -51,6 +51,14 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
             }
         }
 
+        public void Append(SerializableMesh mesh)
+        {
+            for (int s = 0; s < mesh.SubMeshes.Count; s++)
+            {
+                Append(mesh.Vertices, mesh.SubMeshes[s].Indices);
+            }
+        }
+
         public void Append(IReadOnlyList<Vector3> vertices, IReadOnlyList<int> triangles)
         {
             List<CollisionTriangle> directList = Triangles.InnerList;

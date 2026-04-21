@@ -282,7 +282,10 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
             }
 
             _showStats = true;
-            if (SceneView.lastActiveSceneView != null) SceneView.lastActiveSceneView.Repaint();
+            if (SceneView.lastActiveSceneView != null)
+            {
+                SceneView.lastActiveSceneView.Repaint();
+            }
         }
 
         void SetSerializableMeshData(SerializableMesh mesh, List<Vector3> vertices, List<int> triangles)
