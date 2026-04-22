@@ -13,7 +13,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Jih.Unity.Infrastructure.Json
 {
@@ -24,16 +23,6 @@ namespace Jih.Unity.Infrastructure.Json
 
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
-            static void CheckIncludeOrExclude(Type reportType, MemberInfo member, out bool hasInclude, out bool hasExclude)
-            {
-                hasInclude = member.GetCustomAttribute<JsonPropertyAttribute>() is not null;
-                hasExclude = member.GetCustomAttribute<JsonIgnoreAttribute>() is not null;
-                if (!hasInclude && !hasExclude)
-                {
-                    throw new JsonSaveException($"Member '{member.Name}' in '{reportType.FullName}' missing JsonProperty or JsonIgnore attribute. All members must be marked explicitly.", reportType, member);
-                }
-            }
-
             static void CheckConstructors(Type reportType, IReadOnlyList<ConstructorInfo> constructors)
             {
                 bool anyFound = false;
@@ -57,30 +46,21 @@ namespace Jih.Unity.Infrastructure.Json
                 }
             }
 
-            static void CheckType(Type reportType, Type checkType)
+            static void CheckType(Type checkType)
             {
-                if (checkType.GetCustomAttribute<JsonObjectAttribute>() is null)
+                JsonObjectAttribute? objAttr = checkType.GetCustomAttribute<JsonObjectAttribute>()
+                    ?? throw new JsonSaveException($"JSON save type '{checkType.FullName}' must marked with JsonObjectAttribute.", checkType);
+                
+                if (objAttr.MemberSerialization is not MemberSerialization.OptIn)
                 {
-                    throw new JsonSaveException($"JSON save type '{checkType.FullName}' must marked with JsonObjectAttribute.", checkType);
-                }
-
-                FieldInfo[] fields = checkType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                foreach (var field in fields)
-                {
-                    bool compilerGenerated = field.GetCustomAttribute<CompilerGeneratedAttribute>() is not null;
-                    if (compilerGenerated)
-                    {
-                        continue;
-                    }
-
-                    CheckIncludeOrExclude(reportType, field, out _, out _);
+                    throw new JsonSaveException($"JSON save type '{checkType.FullName}' must marked as MemberSerialization.OptIn.", checkType);
                 }
 
                 PropertyInfo[] properties = checkType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 foreach (var property in properties)
                 {
-                    CheckIncludeOrExclude(reportType, property, out _, out bool hasExclude);
-                    if (hasExclude)
+                    JsonPropertyAttribute? propAttr = property.GetCustomAttribute<JsonPropertyAttribute>();
+                    if (propAttr is null)
                     {
                         continue;
                     }
@@ -104,7 +84,7 @@ namespace Jih.Unity.Infrastructure.Json
 
             if (type.IsValueType)
             {
-                CheckType(type, type);
+                CheckType(type);
             }
             else
             {
@@ -114,7 +94,7 @@ namespace Jih.Unity.Infrastructure.Json
                 Type? currentType = type;
                 while (currentType is not null && currentType != typeof(object))
                 {
-                    CheckType(type, currentType);
+                    CheckType(currentType);
 
                     currentType = currentType.BaseType;
                 }

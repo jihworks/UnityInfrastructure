@@ -21,17 +21,11 @@ namespace Jih.Unity.Infrastructure.Json
     /// </para>
     /// <para>
     /// The serializing target types must follow these rules:<br/>
-    /// 1. The type must marked with <see cref="JsonObjectAttribute"/>.<br/>
-    /// 2. <b>All members</b><i>(fields or properties)</i> of the type must marked with <see cref="JsonPropertyAttribute"/> or <see cref="JsonIgnoreAttribute"/>.<br/>
-    /// - <c>private</c>s and <c>readonly</c>s are not exception.<br/>
-    /// - Base class also no exception. Therefore, you may need to declare own types. It causes some inconvenience, but it is intended.<br/>
-    /// - <see cref="JsonPropertyAttribute"/> for serializing member.<br/>
-    /// - <see cref="JsonIgnoreAttribute"/> for non-serializing member.<br/>
-    /// - Therefore, <see cref="JsonObjectAttribute.MemberSerialization"/> has no effect.<br/>
-    /// 3. The type must have <b>default-constructor</b><i>(no parameters)</i> with <see cref="JsonConstructorAttribute"/>.<br/>
+    /// 1. The type must marked as <see cref="MemberSerialization.OptIn"/> with <see cref="JsonObjectAttribute"/>.<br/>
+    /// 2. The type must have <b>default-constructor</b><i>(no parameters)</i> with <see cref="JsonConstructorAttribute"/>.<br/>
     /// - <c>private</c> default-constructors are also allowed.<br/>
     /// - Therefore, the default-constructor is always called when deserializing.<br/>
-    /// 4. Serializing properties must have <b>setter</b>.<br/>
+    /// 3. Serializing properties must have <b>setter</b>.<br/>
     /// - <c>private</c> setters are also allowed.<br/>
     /// <br/>
     /// * If detected prohibited case, <see cref="JsonSaveException"/> will throw.

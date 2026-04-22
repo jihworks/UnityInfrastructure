@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace Jih.Unity.Infrastructure.Json
 {
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct JsonSaveVector2
     {
         [JsonProperty] public float X;
@@ -34,7 +34,7 @@ namespace Jih.Unity.Infrastructure.Json
         }
     }
 
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct JsonSaveVector3
     {
         [JsonProperty] public float X;
@@ -58,7 +58,7 @@ namespace Jih.Unity.Infrastructure.Json
         }
     }
 
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct JsonSaveVector4
     {
         [JsonProperty] public float X;
@@ -84,7 +84,7 @@ namespace Jih.Unity.Infrastructure.Json
         }
     }
 
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct JsonSaveVector2Int
     {
         [JsonProperty] public int X;
@@ -106,7 +106,7 @@ namespace Jih.Unity.Infrastructure.Json
         }
     }
 
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct JsonSaveVector3Int
     {
         [JsonProperty] public int X;
@@ -130,7 +130,7 @@ namespace Jih.Unity.Infrastructure.Json
         }
     }
 
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct JsonSaveMatrix4x4
     {
         [JsonProperty] public float M00;
@@ -230,7 +230,7 @@ namespace Jih.Unity.Infrastructure.Json
         }
     }
 
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct JsonSaveRect
     {
         [JsonProperty] public float X;
@@ -256,7 +256,7 @@ namespace Jih.Unity.Infrastructure.Json
         }
     }
 
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct JsonSaveRectInt
     {
         [JsonProperty] public int X;
@@ -282,7 +282,7 @@ namespace Jih.Unity.Infrastructure.Json
         }
     }
 
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct JsonSaveBounds
     {
         [JsonProperty] public JsonSaveVector3 Center;
@@ -304,7 +304,7 @@ namespace Jih.Unity.Infrastructure.Json
         }
     }
 
-    [JsonObject]
+    [JsonObject(MemberSerialization.OptIn)]
     public struct JsonSaveBoundsInt
     {
         [JsonProperty] public JsonSaveVector3Int Position;
