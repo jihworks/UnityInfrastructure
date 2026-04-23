@@ -62,7 +62,7 @@ namespace Jih.Unity.Infrastructure.Json
                 return result;
             }
 
-            result = new()
+            result = new JsonSerializerSettings()
             {
                 ContractResolver = new JsonSaveContractResolver(),
 

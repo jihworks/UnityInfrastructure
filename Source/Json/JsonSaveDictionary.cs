@@ -5,19 +5,24 @@
 
 #nullable enable
 
-using System;
+#if INFRASTRUCTURE_USE_NEWTONSOFT_JSON
+
+using Newtonsoft.Json;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Runtime.Serialization;
 
-namespace Jih.Unity.Infrastructure.Collections
+namespace Jih.Unity.Infrastructure.Json
 {
-    [Serializable]
-    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
+    [JsonObject(MemberSerialization.OptIn)]
+    public class JsonSaveDictionary<TKey, TValue> : Dictionary<TKey, TValue> where TKey : notnull
     {
-        [SerializeField] List<TKey> _keys = new();
-        [SerializeField] List<TValue> _values = new();
+        [JsonProperty("Keys")]
+        readonly List<TKey> _keys = new();
+        [JsonProperty("Values")]
+        readonly List<TValue> _values = new();
 
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        [OnSerializing]
+        void OnSerializingMethod(StreamingContext context)
         {
             _keys.Clear();
             _values.Clear();
@@ -32,7 +37,18 @@ namespace Jih.Unity.Infrastructure.Collections
             }
         }
 
-        void ISerializationCallbackReceiver.OnAfterDeserialize()
+        [OnSerialized]
+        void OnSerializedMethod(StreamingContext context)
+        {
+            _keys.Clear();
+            _values.Clear();
+
+            _keys.TrimExcess();
+            _values.TrimExcess();
+        }
+
+        [OnDeserialized]
+        void OnDeserializedMethod(StreamingContext context)
         {
             Clear();
 
@@ -51,3 +67,5 @@ namespace Jih.Unity.Infrastructure.Collections
         }
     }
 }
+
+#endif
