@@ -17,19 +17,10 @@ namespace Jih.Unity.Infrastructure
     /// This implementation does not use caching. Generating occurs on demand.<br/>
     /// Thread-safe.
     /// </remarks>
-    public class Philox4x32
+    public readonly struct Philox4x32
     {
-        private const uint R = 10;
-        private const uint M0 = 0xD2511F53;
-        private const uint M1 = 0xCD9E8D57;
-        private const uint W0 = 0x9E3779B9;
-        private const uint W1 = 0xBB67AE85;
+        readonly Philox4x32Key _key;
 
-        private readonly Philox4x32Key _key;
-
-        public Philox4x32() : this(Environment.TickCount)
-        {
-        }
         public Philox4x32(int seed) : this(unchecked((uint)seed))
         {
         }
@@ -142,7 +133,7 @@ namespace Jih.Unity.Infrastructure
             return PhiloxRound(ctr0, ctr1, ctr2, ctr3, _key.K0, _key.K1);
         }
 
-        private static Philox4x32Result PhiloxRound(uint x0, uint x1, uint x2, uint x3, uint k0, uint k1)
+        static Philox4x32Result PhiloxRound(uint x0, uint x1, uint x2, uint x3, uint k0, uint k1)
         {
             for (int i = 0; i < R; i++)
             {
@@ -180,7 +171,7 @@ namespace Jih.Unity.Infrastructure
             return new Philox4x32Result(x0, x1, x2, x3);
         }
 
-        public readonly struct Philox4x32Key
+        readonly struct Philox4x32Key
         {
             public static Philox4x32Key FromSeed(uint seed)
             {
@@ -204,6 +195,12 @@ namespace Jih.Unity.Infrastructure
                 throw new ArgumentOutOfRangeException(nameof(position), "Position must be non-negative.");
             }
         }
+
+        const uint R = 10;
+        const uint M0 = 0xD2511F53;
+        const uint M1 = 0xCD9E8D57;
+        const uint W0 = 0x9E3779B9;
+        const uint W1 = 0xBB67AE85;
     }
 
     public readonly struct Philox4x32Result

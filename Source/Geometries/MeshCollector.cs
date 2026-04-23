@@ -23,20 +23,6 @@ namespace Jih.Unity.Infrastructure.Geometries
     /// </remarks>
     public class MeshCollector
     {
-        public enum LoadImperfectStrategy
-        {
-            RemoveAndUnsetFlag,
-            ThrowException,
-            FillWithFallback,
-        }
-
-        public enum AppendSubMeshStrategy
-        {
-            MatchedOnly,
-            AddSubMeshes,
-            ThrowException,
-        }
-
         public static MeshCollector Load(Mesh mesh, AdditionalAttributes additionalAttributes, LoadImperfectStrategy imperfectStrategy = LoadImperfectStrategy.RemoveAndUnsetFlag, VertexData fallback = default, int subMeshLod = 0)
         {
             if (!mesh.isReadable)
@@ -1034,6 +1020,20 @@ namespace Jih.Unity.Infrastructure.Geometries
 
         /// <returns>Return <c>false</c> to abort. The <paramref name="result"/> will be ignored when <c>false</c> returned.</returns>
         public delegate bool EditDelegate<T>(int index, T source, out T result);
+
+        public enum LoadImperfectStrategy
+        {
+            RemoveAndUnsetFlag,
+            ThrowException,
+            FillWithFallback,
+        }
+
+        public enum AppendSubMeshStrategy
+        {
+            MatchedOnly,
+            AddSubMeshes,
+            ThrowException,
+        }
 
         public const int MaxUVSetCount = 8;
     }
