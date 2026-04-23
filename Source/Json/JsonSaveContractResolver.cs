@@ -56,7 +56,7 @@ namespace Jih.Unity.Infrastructure.Json
                     throw new JsonSaveException($"JSON save type '{checkType.FullName}' must marked as MemberSerialization.OptIn.", checkType);
                 }
 
-                PropertyInfo[] properties = checkType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                PropertyInfo[] properties = checkType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
                 foreach (var property in properties)
                 {
                     JsonPropertyAttribute? propAttr = property.GetCustomAttribute<JsonPropertyAttribute>();
@@ -88,7 +88,7 @@ namespace Jih.Unity.Infrastructure.Json
             }
             else
             {
-                ConstructorInfo[] constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                ConstructorInfo[] constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
                 CheckConstructors(type, constructors);
 
                 Type? currentType = type;

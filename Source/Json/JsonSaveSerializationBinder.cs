@@ -27,7 +27,7 @@ namespace Jih.Unity.Infrastructure.Json
             string fullName = serializedType.FullName ?? throw new InvalidOperationException($"Type '{serializedType}' has not fullname.");
             if (!fullName.StartsWith(RuntimeRootNamespace, StringComparison.Ordinal))
             {
-                throw new JsonSaveException($"JSON save type identifier with namespace must starts with runtime-root-namespace '{RuntimeRootNamespace}'. Type: {fullName}", serializedType);
+                throw new JsonSaveException($"JSON save type '{fullName}' must starts with runtime-root-namespace '{RuntimeRootNamespace}'.", serializedType);
             }
             typeName = fullName[RuntimeRootNamespace.Length..];
         }
