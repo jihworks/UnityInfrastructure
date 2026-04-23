@@ -16,7 +16,7 @@ namespace Jih.Unity.Infrastructure
     /// <b>NOT</b> thread-safe.
     /// </remarks>
     /// <seealso cref="Philox4x32"/>
-    public class RandomStream : IRandomInt32
+    public class RandomStream : IRandomInt32, IRandomDouble, IRandomDouble01
     {
         public int Seed { get; }
 
@@ -61,6 +61,10 @@ namespace Jih.Unity.Infrastructure
         {
             return _generator.GenerateDouble(_position);
         }
+        public double GetDouble01()
+        {
+            return _generator.GenerateDouble01(_position);
+        }
         public bool GetBoolean()
         {
             return _generator.GenerateBoolean(_position);
@@ -85,6 +89,10 @@ namespace Jih.Unity.Infrastructure
         public double NextDouble()
         {
             return _generator.GenerateDouble(checked(_position++));
+        }
+        public double NextDouble01()
+        {
+            return _generator.GenerateDouble01(checked(_position++));
         }
         public bool NextBoolean()
         {

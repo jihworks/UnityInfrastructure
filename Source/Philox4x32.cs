@@ -78,17 +78,32 @@ namespace Jih.Unity.Infrastructure
             return minInclusive + (int)(((ulong)value * range) >> 32);
         }
 
-        /// <returns>[0, 1]</returns>
+        /// <returns>[0, 1)</returns>
         public double GenerateDouble(long position)
         {
             CheckPosition(position);
 
             return GenerateDouble((ulong)position);
         }
-        /// <returns>[0, 1]</returns>
+        /// <returns>[0, 1)</returns>
         public double GenerateDouble(ulong position)
         {
-            return GenerateUInt64(position) / (double)ulong.MaxValue;
+            ulong v = GenerateUInt64(position);
+            return RandomEx.GetDouble(v);
+        }
+
+        /// <returns>[0, 1]</returns>
+        public double GenerateDouble01(long position)
+        {
+            CheckPosition(position);
+
+            return GenerateDouble01((ulong)position);
+        }
+        /// <returns>[0, 1]</returns>
+        public double GenerateDouble01(ulong position)
+        {
+            ulong v = GenerateUInt64(position);
+            return RandomEx.GetDouble01(v);
         }
 
         public bool GenerateBoolean(long position)

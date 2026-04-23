@@ -15,7 +15,7 @@ namespace Jih.Unity.Infrastructure
     public interface IRandomInt32
     {
         /// <summary>
-        /// Implementing class must return a random <c>int</c> that is greater than or equal to <paramref name="minInclusive"/> and <b>less</b> than <paramref name="maxExclusive"/>.
+        /// Get a random <c>int</c> that is greater than or equal to <paramref name="minInclusive"/> and <b>less</b> than <paramref name="maxExclusive"/>.
         /// </summary>
         /// <remarks>
         /// The distribution of returned values must be approximately uniform across the range of possible values.
@@ -26,7 +26,37 @@ namespace Jih.Unity.Infrastructure
         int NextInt32(int minInclusive, int maxExclusive);
     }
 
-    public class SystemRandom : Random, IRandomInt32
+    /// <seealso cref="SystemRandom"/>
+    /// <seealso cref="RandomStream"/>
+    public interface IRandomDouble
+    {
+        /// <summary>
+        /// Get a random <c>double</c> in [0, 1) range.
+        /// </summary>
+        /// <remarks>
+        /// This approach never returns <c>1.0</c> but provides mathematically perfect random numbers.<br/>
+        /// Check <see cref="RandomEx"/> for more details.
+        /// </remarks>
+        /// <returns>[0, 1)</returns>
+        double NextDouble();
+    }
+
+    /// <seealso cref="SystemRandom"/>
+    /// <seealso cref="RandomStream"/>
+    public interface IRandomDouble01
+    {
+        /// <summary>
+        /// Get a random <c>double</c> in [0, 1] range.
+        /// </summary>
+        /// <remarks>
+        /// This approach <b>cannot</b> provide mathematically perfect random numbers but the error is negligible.<br/>
+        /// Check <see cref="RandomEx"/> for more details.
+        /// </remarks>
+        /// <returns>[0, 1]</returns>
+        double NextDouble01();
+    }
+
+    public class SystemRandom : Random, IRandomInt32, IRandomDouble, IRandomDouble01
     {
         public SystemRandom()
         {
@@ -38,6 +68,14 @@ namespace Jih.Unity.Infrastructure
         public int NextInt32(int minInclusive, int maxExclusive)
         {
             return Next(minInclusive, maxExclusive);
+        }
+
+        public double NextDouble01()
+        {
+            Span<byte> buffer = stackalloc byte[8];
+            NextBytes(buffer);
+            ulong v = BitConverter.ToUInt64(buffer);
+            return RandomEx.GetDouble01(v);
         }
     }
 
