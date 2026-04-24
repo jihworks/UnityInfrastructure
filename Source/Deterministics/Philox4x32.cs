@@ -122,7 +122,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
             uint rawRandom = GenerateUInt32(position);
 
             // Extract lower 16 bits (0 ~ 65535)
-            int value16 = (int)(rawRandom & 0xFFFF);
+            int value16 = (int)(rawRandom & F32.FractionMask);
 
             return F32.FromRaw(value16);
         }

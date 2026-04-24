@@ -28,7 +28,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         {
             return new F32((int)MathF.Round(v * OneRaw));
         }
-        /// <inheritdoc cref="FromInt(int)"/>
+        /// <inheritdoc cref="FromFloat(float)"/>
         public static F32 FromDouble(double v)
         {
             return new F32((int)Math.Round(v * OneRaw));
