@@ -5,6 +5,7 @@
 
 #nullable enable
 
+using Jih.Unity.Infrastructure.Deterministics;
 using System;
 
 namespace Jih.Unity.Infrastructure
@@ -13,7 +14,9 @@ namespace Jih.Unity.Infrastructure
     /// Supports random access to the random numbers sequence by Position value.
     /// </summary>
     /// <remarks>
-    /// <b>NOT</b> thread-safe.
+    /// <b>NOT</b> thread-safe.<br/>
+    /// <br/>
+    /// Guarantees deterministic results. Even <c>double</c>s.
     /// </remarks>
     /// <seealso cref="Philox4x32"/>
     public class RandomStream : IRandomInt32, IRandomDouble, IRandomDouble01
@@ -65,6 +68,10 @@ namespace Jih.Unity.Infrastructure
         {
             return _generator.GenerateDouble01(_position);
         }
+        public F32 GetF32()
+        {
+            return _generator.GenerateF32(_position);
+        }
         public bool GetBoolean()
         {
             return _generator.GenerateBoolean(_position);
@@ -93,6 +100,10 @@ namespace Jih.Unity.Infrastructure
         public double NextDouble01()
         {
             return _generator.GenerateDouble01(checked(_position++));
+        }
+        public F32 NextF32()
+        {
+            return _generator.GenerateF32(checked(_position++));
         }
         public bool NextBoolean()
         {

@@ -104,9 +104,9 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         /// The returned value is compatible with <see cref="MathEx.RadiusVector(float)"/>.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float GetRadiusDegrees(this HexaVertexPosition position)
+        public static int GetRadiusDegrees(this HexaVertexPosition position)
         {
-            return ((int)position) * 60f - 90f;
+            return ((int)position) * 60 - 90;
         }
         /// <inheritdoc cref="Next(HexaNeighborPosition)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -129,9 +129,9 @@ namespace Jih.Unity.Infrastructure.HexaGrid
 
         /// <inheritdoc cref="GetRadiusDegrees(HexaVertexPosition)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float GetRadiusDegrees(this HexaEdgePosition position)
+        public static int GetRadiusDegrees(this HexaEdgePosition position)
         {
-            return ((int)position) * 60f - 60f;
+            return ((int)position) * 60 - 60;
         }
         /// <inheritdoc cref="Next(HexaNeighborPosition)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

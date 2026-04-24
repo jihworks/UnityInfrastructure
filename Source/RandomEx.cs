@@ -19,7 +19,9 @@ namespace Jih.Unity.Infrastructure
         /// <remarks>
         /// Sacrificing very small precision to get <c>1.0</c>.<br/>
         /// The error is really tiny(approx. 1.11e-16), therefore, it can be ignored in most general cases.<br/>
-        /// However, note that this approach does not provide mathematically perfect results.
+        /// However, note that this approach does not provide mathematically perfect results.<br/>
+        /// <br/>
+        /// Guarantees deterministic results.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double GetDouble01(ulong v)
@@ -39,7 +41,9 @@ namespace Jih.Unity.Infrastructure
         /// <param name="v">A random value in <c>UInt64</c>.</param>
         /// <returns>[0, 1)</returns>
         /// <remarks>
-        /// Provides mathematically perfect random numbers except <c>1.0</c>.
+        /// Provides mathematically perfect random numbers except <c>1.0</c>.<br/>
+        /// <br/>
+        /// Guarantees deterministic results.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double GetDouble(ulong v)

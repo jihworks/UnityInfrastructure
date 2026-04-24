@@ -9,7 +9,7 @@ using System;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 
-namespace Jih.Unity.Infrastructure
+namespace Jih.Unity.Infrastructure.Deterministics
 {
     /// <summary>
     /// Supports random access to the random numbers sequence by position value.
@@ -17,6 +17,8 @@ namespace Jih.Unity.Infrastructure
     /// <remarks>
     /// This implementation does not use caching. Generating occurs on demand.<br/>
     /// Thread-safe.
+    /// <br/>
+    /// Guarantees deterministic results. Even <c>double</c>s.
     /// </remarks>
     public readonly struct Philox4x32
     {
@@ -105,6 +107,24 @@ namespace Jih.Unity.Infrastructure
         {
             ulong v = GenerateUInt64(position);
             return RandomEx.GetDouble01(v);
+        }
+
+        /// <returns><see cref="F32"/> in range [0, 1)</returns>
+        public F32 GenerateF32(long position)
+        {
+            CheckPosition(position);
+
+            return GenerateF32((ulong)position);
+        }
+        /// <returns><see cref="F32"/> in range [0, 1)</returns>
+        public F32 GenerateF32(ulong position)
+        {
+            uint rawRandom = GenerateUInt32(position);
+
+            // Extract lower 16 bits (0 ~ 65535)
+            int value16 = (int)(rawRandom & 0xFFFF);
+
+            return F32.FromRaw(value16);
         }
 
         public bool GenerateBoolean(long position)
