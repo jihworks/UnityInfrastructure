@@ -6,6 +6,7 @@
 #nullable enable
 
 using System;
+using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 
 namespace Jih.Unity.Infrastructure
@@ -132,10 +133,10 @@ namespace Jih.Unity.Infrastructure
 
             Philox4x32Result result = Generate(position);
 
-            BitConverter.TryWriteBytes(destination[..4], result.V0);
-            BitConverter.TryWriteBytes(destination.Slice(4, 4), result.V1);
-            BitConverter.TryWriteBytes(destination.Slice(8, 4), result.V2);
-            BitConverter.TryWriteBytes(destination.Slice(12, 4), result.V3);
+            BinaryPrimitives.WriteUInt32LittleEndian(destination[..4], result.V0);
+            BinaryPrimitives.WriteUInt32LittleEndian(destination.Slice(4, 4), result.V1);
+            BinaryPrimitives.WriteUInt32LittleEndian(destination.Slice(8, 4), result.V2);
+            BinaryPrimitives.WriteUInt32LittleEndian(destination.Slice(12, 4), result.V3);
         }
 
         public Philox4x32Result Generate(ulong position)

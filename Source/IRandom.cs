@@ -6,6 +6,7 @@
 #nullable enable
 
 using System;
+using System.Buffers.Binary;
 
 namespace Jih.Unity.Infrastructure
 {
@@ -74,7 +75,7 @@ namespace Jih.Unity.Infrastructure
         {
             Span<byte> buffer = stackalloc byte[8];
             NextBytes(buffer);
-            ulong v = BitConverter.ToUInt64(buffer);
+            ulong v = BinaryPrimitives.ReadUInt64LittleEndian(buffer);
             return RandomEx.GetDouble01(v);
         }
     }
