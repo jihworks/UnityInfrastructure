@@ -16,11 +16,16 @@ namespace Jih.Unity.Infrastructure.Deterministics
     /// </summary>
     public readonly struct F32 : IEquatable<F32>, IComparable<F32>
     {
+        /// <remarks>
+        /// Deterministic-safe.
+        /// </remarks>
         public static F32 FromInt(int v)
         {
             return new F32(v << FractionalBits);
         }
         /// <remarks>
+        /// <b>NOT</b> deterministic-safe.<br/>
+        /// <br/>
         /// <b>DO NOT</b> use this for a value in middle of calculations. Because will break deterministics.<br/>
         /// Use this to get constant values only. Specifically, hard-coded literal values or their copies.
         /// </remarks>
@@ -53,51 +58,71 @@ namespace Jih.Unity.Infrastructure.Deterministics
             RawValue = rawValue;
         }
 
+        /// <inheritdoc cref="FromInt(int)"/>
         public static implicit operator F32(int v)
         {
             return FromInt(v);
         }
+        /// <inheritdoc cref="FromFloat(float)"/>
         public static explicit operator F32(float v)
         {
             return FromFloat(v);
         }
+        /// <inheritdoc cref="FromDouble(double)"/>
         public static explicit operator F32(double v)
         {
             return FromDouble(v);
         }
 
+        /// <remarks>
+        /// Deterministic-safe.<br/>
+        /// <br/>
+        /// However, <c>int</c> can be converted to <c>float</c> or <c>double</c> implicitly, then, it will break deterministics.<br/>
+        /// Therefore, this casting is <c>explicit</c>.
+        /// </remarks>
         public static explicit operator int(F32 v)
         {
             return v.RawValue >> FractionalBits;
         }
+        /// <remarks>
+        /// <c>NOT</c> deterministic-safe.
+        /// </remarks>
         public static explicit operator float(F32 v)
         {
             return (float)v.RawValue / OneRaw;
         }
+        /// <remarks>
+        /// <c>NOT</c> deterministic-safe.
+        /// </remarks>
         public static explicit operator double(F32 v)
         {
             return (double)v.RawValue / OneRaw;
         }
 
+        /// <exception cref="OverflowException">Throws when arithmetic overflow detected.</exception>
         public static F32 operator +(F32 l, F32 r)
         {
             return new F32(checked(l.RawValue + r.RawValue));
         }
+        /// <inheritdoc cref="operator +(F32, F32)"/>
         public static F32 operator -(F32 l, F32 r)
         {
             return new F32(checked(l.RawValue - r.RawValue));
         }
+        /// <inheritdoc cref="operator +(F32, F32)"/>
         public static F32 operator *(F32 l, F32 r)
         {
             long t = ((long)l.RawValue * r.RawValue) >> FractionalBits;
             return new F32(checked((int)t));
         }
+        /// <inheritdoc cref="operator +(F32, F32)"/>
         public static F32 operator /(F32 l, F32 r)
         {
             long t = (((long)l.RawValue) << FractionalBits) / r.RawValue;
             return new F32(checked((int)t));
         }
 
+        /// <inheritdoc cref="operator +(F32, F32)"/>
         public static F32 operator -(F32 v)
         {
             return new F32(checked(-v.RawValue));

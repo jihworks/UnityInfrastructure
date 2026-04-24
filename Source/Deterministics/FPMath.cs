@@ -108,13 +108,13 @@ namespace Jih.Unity.Infrastructure.Deterministics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Floor(F32 value)
+        public static F32 Floor(this F32 value)
         {
             return F32.FromRaw(value.RawValue & F32.IntegerMask);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Ceiling(F32 value)
+        public static F32 Ceiling(this F32 value)
         {
             int raw = value.RawValue;
             if ((raw & F32.FractionMask) == 0)
@@ -125,7 +125,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Truncate(F32 value)
+        public static F32 Truncate(this F32 value)
         {
             int raw = value.RawValue;
             if (raw < 0 && (raw & F32.FractionMask) != 0)
@@ -139,7 +139,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         /// Banker's Rounding.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Round(F32 value)
+        public static F32 Round(this F32 value)
         {
             int raw = value.RawValue;
             int fraction = raw & F32.FractionMask;

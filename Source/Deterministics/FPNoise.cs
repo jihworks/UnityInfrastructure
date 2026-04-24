@@ -52,7 +52,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static F32 Fade(F32 t)
+        static F32 Fade(F32 t)
         {
             // 6t^5 - 15t^4 + 10t^3 
             // = t * t * t * (t * (t * 6 - 15) + 10)
@@ -60,7 +60,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static F32 Grad(int hash, F32 x, F32 y)
+        static F32 Grad(int hash, F32 x, F32 y)
         {
             int h = hash & 3;
             F32 u = (h & 2) == 0 ? x : -x;

@@ -17,7 +17,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
 
         public static F32 Cos(int degrees)
         {
-            // Cos has the same graph with 90 degress shift Sin.
+            // Cos has the same graph with 90 degrees shift Sin.
             int index = (degrees + 90).CollapseDegrees();
             return F32.FromRaw(_sinRawValues[index]);
         }
