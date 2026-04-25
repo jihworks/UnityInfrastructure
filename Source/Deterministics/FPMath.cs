@@ -5,7 +5,6 @@
 
 #nullable enable
 
-using System;
 using System.Runtime.CompilerServices;
 
 namespace Jih.Unity.Infrastructure.Deterministics
@@ -15,26 +14,26 @@ namespace Jih.Unity.Infrastructure.Deterministics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static F64 Sqrt(this F64 value)
         {
-            if (value.RawValue <= 0)
+            if (value.RawValue <= 0L)
             {
                 return F64.Zero;
             }
 
             ulong numHi = (ulong)value.RawValue;
 
-            ulong res = 0;
-            ulong rem = 0;
+            ulong res = 0ul;
+            ulong rem = 0ul;
             for (int i = 0; i < 48; i++)
             {
                 rem = (rem << 2) | (numHi >> 62);
 
                 numHi <<= 2;
 
-                ulong test = (res << 2) | 1UL;
+                ulong test = (res << 2) | 1ul;
                 if (rem >= test)
                 {
                     rem -= test;
-                    res = (res << 1) | 1UL;
+                    res = (res << 1) | 1ul;
                 }
                 else
                 {
@@ -100,7 +99,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static F64 Abs(this F64 value)
         {
-            return value.RawValue < 0 ? F64.FromRaw(checked(-value.RawValue)) : value;
+            return value.RawValue < 0L ? F64.FromRaw(checked(-value.RawValue)) : value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -113,7 +112,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         public static F64 Ceiling(this F64 value)
         {
             long raw = value.RawValue;
-            if ((raw & F64.FractionMask) == 0)
+            if ((raw & F64.FractionMask) == 0L)
             {
                 return value;
             }
@@ -124,7 +123,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         public static F64 Truncate(this F64 value)
         {
             long raw = value.RawValue;
-            if (raw < 0 && (raw & F64.FractionMask) != 0)
+            if (raw < 0L && (raw & F64.FractionMask) != 0L)
             {
                 return F64.FromRaw((raw & F64.IntegerMask) + F64.OneRaw);
             }
@@ -152,11 +151,10 @@ namespace Jih.Unity.Infrastructure.Deterministics
             }
 
             // 0.5
-            if ((floorRaw & F64.OneRaw) != 0)
+            if ((floorRaw & F64.OneRaw) != 0L) // Check odd number.
             {
-                return F64.FromRaw(floorRaw + F64.OneRaw);
+                return F64.FromRaw(floorRaw + F64.OneRaw); // To even number.
             }
-
             return F64.FromRaw(floorRaw);
         }
 
@@ -175,13 +173,13 @@ namespace Jih.Unity.Infrastructure.Deterministics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static F64 SafeDivide(this F64 left, F64 right)
         {
-            return right.RawValue == 0 ? F64.Zero : left / right;
+            return right.RawValue == 0L ? F64.Zero : left / right;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static F64 SafeInverse(this F64 right)
         {
-            return right.RawValue == 0 ? F64.Zero : F64.One / right;
+            return right.RawValue == 0L ? F64.Zero : F64.One / right;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
