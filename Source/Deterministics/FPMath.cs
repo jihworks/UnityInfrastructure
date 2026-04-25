@@ -11,68 +11,63 @@ namespace Jih.Unity.Infrastructure.Deterministics
 {
     public static class FPMath
     {
-        public static F32 Sqrt(F32 v)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static F64 Sqrt(this F64 v)
         {
             if (v.RawValue <= 0)
             {
-                return F32.Zero;
+                return F64.Zero;
             }
 
-            ulong raw = (ulong)v.RawValue << 16;
-            return F32.FromRaw((int)Sqrt_Impl(raw));
-        }
+            ulong numHi = (ulong)v.RawValue;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static ulong Sqrt_Impl(ulong num)
-        {
             ulong res = 0;
-            ulong bit = 1UL << 62;
-
-            while (bit > num)
+            ulong rem = 0;
+            for (int i = 0; i < 48; i++)
             {
-                bit >>= 2;
-            }
+                rem = (rem << 2) | (numHi >> 62);
 
-            while (bit != 0)
-            {
-                if (num >= res + bit)
+                numHi <<= 2;
+
+                ulong test = (res << 2) | 1UL;
+                if (rem >= test)
                 {
-                    num -= res + bit;
-                    res = (res >> 1) + bit;
+                    rem -= test;
+                    res = (res << 1) | 1UL;
                 }
                 else
                 {
-                    res >>= 1;
+                    res <<= 1;
                 }
-                bit >>= 2;
             }
-            return res;
+
+            return F64.FromRaw((long)res);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Min(F32 a, F32 b)
+        public static F64 Min(F64 a, F64 b)
         {
             return a.RawValue < b.RawValue ? a : b;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Min(ref F32 a, F32 b)
+        public static void Min(ref F64 a, F64 b)
         {
             a = Min(a, b);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Max(F32 a, F32 b)
+        public static F64 Max(F64 a, F64 b)
         {
             return a.RawValue > b.RawValue ? a : b;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Max(ref F32 a, F32 b)
+        public static void Max(ref F64 a, F64 b)
         {
             a = Max(a, b);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Clamp(this F32 value, F32 min, F32 max)
+        public static F64 Clamp(this F64 value, F64 min, F64 max)
         {
             if (value.RawValue < min.RawValue)
             {
@@ -85,100 +80,106 @@ namespace Jih.Unity.Infrastructure.Deterministics
             return value;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Clamp(ref F32 value, F32 min, F32 max)
+        public static void Clamp(ref F64 value, F64 min, F64 max)
         {
             value = Clamp(value, min, max);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Clamp01(this F32 value)
+        public static F64 Clamp01(this F64 value)
         {
-            return Clamp(value, F32.Zero, F32.One);
+            return Clamp(value, F64.Zero, F64.One);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Clamp01(ref F32 value)
+        public static void Clamp01(ref F64 value)
         {
-            value = Clamp(value, F32.Zero, F32.One);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Abs(this F32 v)
-        {
-            return v.RawValue < 0 ? F32.FromRaw(-v.RawValue) : v;
+            value = Clamp(value, F64.Zero, F64.One);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Floor(this F32 value)
+        public static F64 Abs(this F64 v)
         {
-            return F32.FromRaw(value.RawValue & F32.IntegerMask);
+            return v.RawValue < 0 ? F64.FromRaw(-v.RawValue) : v;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Ceiling(this F32 value)
+        public static F64 Floor(this F64 value)
         {
-            int raw = value.RawValue;
-            if ((raw & F32.FractionMask) == 0)
+            return F64.FromRaw(value.RawValue & F64.IntegerMask);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static F64 Ceiling(this F64 value)
+        {
+            long raw = value.RawValue;
+            if ((raw & F64.FractionMask) == 0)
             {
                 return value;
             }
-            return F32.FromRaw((raw & F32.IntegerMask) + F32.OneRaw);
+            return F64.FromRaw((raw & F64.IntegerMask) + F64.OneRaw);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Truncate(this F32 value)
+        public static F64 Truncate(this F64 value)
         {
-            int raw = value.RawValue;
-            if (raw < 0 && (raw & F32.FractionMask) != 0)
+            long raw = value.RawValue;
+            if (raw < 0 && (raw & F64.FractionMask) != 0)
             {
-                return F32.FromRaw((raw & F32.IntegerMask) + F32.OneRaw);
+                return F64.FromRaw((raw & F64.IntegerMask) + F64.OneRaw);
             }
-            return F32.FromRaw(raw & F32.IntegerMask);
+            return F64.FromRaw(raw & F64.IntegerMask);
         }
 
         /// <remarks>
         /// Banker's Rounding.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Round(this F32 value)
+        public static F64 Round(this F64 value)
         {
-            int raw = value.RawValue;
-            int fraction = raw & F32.FractionMask;
-            int floorRaw = raw & F32.IntegerMask;
+            long raw = value.RawValue;
+            long fraction = raw & F64.FractionMask;
+            long floorRaw = raw & F64.IntegerMask;
 
             if (fraction < 0x8000)
             {
-                return F32.FromRaw(floorRaw);
+                return F64.FromRaw(floorRaw);
             }
             if (fraction > 0x8000)
             {
-                return F32.FromRaw(floorRaw + F32.OneRaw);
+                return F64.FromRaw(floorRaw + F64.OneRaw);
             }
 
             // 0.5
-            if ((floorRaw & F32.OneRaw) != 0)
+            if ((floorRaw & F64.OneRaw) != 0)
             {
-                return F32.FromRaw(floorRaw + F32.OneRaw);
+                return F64.FromRaw(floorRaw + F64.OneRaw);
             }
 
-            return F32.FromRaw(floorRaw);
+            return F64.FromRaw(floorRaw);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 Lerp(F32 a, F32 b, F32 t)
+        public static F64 Lerp(F64 a, F64 b, F64 t)
         {
             return a + (b - a) * t;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F32 SafeDivide(this F32 left, F32 right)
+        public static F64 Sq(this F64 value)
         {
-            return right.RawValue == 0 ? F32.Zero : left / right;
+            return value * value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector2F32 RadiusVector(int degrees)
+        public static F64 SafeDivide(this F64 left, F64 right)
         {
-            return new Vector2F32(FPLut.Cos(degrees), FPLut.Sin(degrees));
+            return right.RawValue == 0 ? F64.Zero : left / right;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2F64 RadiusVector(int degrees)
+        {
+            return new Vector2F64(FPLut.Cos(degrees), FPLut.Sin(degrees));
         }
     }
 }

@@ -109,22 +109,20 @@ namespace Jih.Unity.Infrastructure.Deterministics
             return RandomEx.GetDouble01(v);
         }
 
-        /// <returns><see cref="F32"/> in range [0, 1)</returns>
-        public F32 GenerateF32(long position)
+        /// <returns><see cref="F64"/> in range [0, 1)</returns>
+        public F64 GenerateF64(long position)
         {
             CheckPosition(position);
 
-            return GenerateF32((ulong)position);
+            return GenerateF64((ulong)position);
         }
-        /// <returns><see cref="F32"/> in range [0, 1)</returns>
-        public F32 GenerateF32(ulong position)
+        /// <returns><see cref="F64"/> in range [0, 1)</returns>
+        public F64 GenerateF64(ulong position)
         {
             uint rawRandom = GenerateUInt32(position);
 
-            // Extract lower 16 bits (0 ~ 65535)
-            int value16 = (int)(rawRandom & F32.FractionMask);
-
-            return F32.FromRaw(value16);
+            // Integer part will fill with 0.
+            return F64.FromRaw(rawRandom);
         }
 
         public bool GenerateBoolean(long position)

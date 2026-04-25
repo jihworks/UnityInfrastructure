@@ -11,18 +11,27 @@ namespace Jih.Unity.Infrastructure.Deterministics
 {
     public static class FPEnumerable
     {
-        public static F32 SumF32(this IEnumerable<F32> collection)
+        public static F64 SumF64(this IEnumerable<F64> collection)
         {
-            F32 result = 0;
+            F64 result = 0;
             foreach (var item in collection)
             {
                 result += item;
             }
             return result;
         }
-        public static F32 SumF32(this IEnumerable<int> collection)
+        public static F64 SumF64(this IEnumerable<int> collection)
         {
-            F32 result = 0;
+            F64 result = 0;
+            foreach (var item in collection)
+            {
+                result += item;
+            }
+            return result;
+        }
+        public static F64 SumF64(this IEnumerable<long> collection)
+        {
+            F64 result = 0;
             foreach (var item in collection)
             {
                 result += item;
@@ -30,10 +39,10 @@ namespace Jih.Unity.Infrastructure.Deterministics
             return result;
         }
 
-        public static F32 AverageF32(this IEnumerable<F32> collection)
+        public static F64 AverageF64(this IEnumerable<F64> collection)
         {
             int count = 0;
-            F32 sum = 0;
+            F64 sum = 0;
             foreach (var item in collection)
             {
                 sum += item;
@@ -41,10 +50,21 @@ namespace Jih.Unity.Infrastructure.Deterministics
             }
             return sum / count;
         }
-        public static F32 AverageF32(this IEnumerable<int> collection)
+        public static F64 AverageF64(this IEnumerable<int> collection)
         {
             int count = 0;
-            F32 sum = 0;
+            F64 sum = 0;
+            foreach (var item in collection)
+            {
+                sum += item;
+                count++;
+            }
+            return sum / count;
+        }
+        public static F64 AverageF64(this IEnumerable<long> collection)
+        {
+            int count = 0;
+            F64 sum = 0;
             foreach (var item in collection)
             {
                 sum += item;

@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 namespace Jih.Unity.Infrastructure.Deterministics
 {
     /// <summary>
-    /// Deterministic Perlin Noise generator using F32 (Q16.16).
+    /// Deterministic Perlin Noise generator using <see cref="F64"/>.
     /// Safe to use across all platforms and CPU architectures.
     /// </summary>
     public static class FPNoise
@@ -21,50 +21,44 @@ namespace Jih.Unity.Infrastructure.Deterministics
         /// <param name="x">X coordinate.</param>
         /// <param name="y">Y coordinate.</param>
         /// <returns>Value approximately in [0, 1] range.</returns>
-        public static F32 PerlinNoise(F32 x, F32 y)
+        public static F64 PerlinNoise(F64 x, F64 y)
         {
-            // Upper 16 bits. Integer part.
-            int X = ((int)x >> F32.FractionalBits) & 255;
-            int Y = ((int)y >> F32.FractionalBits) & 255;
+            int X = (int)((x.RawValue >> F64.FractionalBits) & 255);
+            int Y = (int)((y.RawValue >> F64.FractionalBits) & 255);
 
-            // Lower 16 bits. Fractional part.
-            F32 xf = F32.FromRaw(x.RawValue & F32.FractionMask);
-            F32 yf = F32.FromRaw(y.RawValue & F32.FractionMask);
+            F64 xf = F64.FromRaw(x.RawValue & F64.FractionMask);
+            F64 yf = F64.FromRaw(y.RawValue & F64.FractionMask);
 
-            F32 u = Fade(xf);
-            F32 v = Fade(yf);
+            F64 u = Fade(xf);
+            F64 v = Fade(yf);
 
             int aa = P[P[X] + Y];
             int ab = P[P[X] + Y + 1];
             int ba = P[P[X + 1] + Y];
             int bb = P[P[X + 1] + Y + 1];
 
-            F32 res = FPMath.Lerp(
-                FPMath.Lerp(Grad(aa, xf, yf), Grad(ba, xf - F32.One, yf), u),
-                FPMath.Lerp(Grad(ab, xf, yf - F32.One), Grad(bb, xf - F32.One, yf - F32.One), u),
+            F64 res = FPMath.Lerp(
+                FPMath.Lerp(Grad(aa, xf, yf), Grad(ba, xf - F64.One, yf), u),
+                FPMath.Lerp(Grad(ab, xf, yf - F64.One), Grad(bb, xf - F64.One, yf - F64.One), u),
                 v
             );
 
-            // The res in approx. [-0.707, 0.707] range.
-            // Scaling up to [0, 1] range.
-            F32 finalValue = (res + F32.One) * F32.Half;
+            F64 finalValue = (res + F64.One) * F64.Half;
             return finalValue.Clamp01();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static F32 Fade(F32 t)
+        static F64 Fade(F64 t)
         {
-            // 6t^5 - 15t^4 + 10t^3 
-            // = t * t * t * (t * (t * 6 - 15) + 10)
-            return t * t * t * (t * (t * F32_6 - F32_15) + F32_10);
+            return t * t * t * (t * (t * F64_6 - F64_15) + F64_10);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static F32 Grad(int hash, F32 x, F32 y)
+        static F64 Grad(int hash, F64 x, F64 y)
         {
             int h = hash & 3;
-            F32 u = (h & 2) == 0 ? x : -x;
-            F32 v = (h & 1) == 0 ? y : -y;
+            F64 u = (h & 2) == 0 ? x : -x;
+            F64 v = (h & 1) == 0 ? y : -y;
             return u + v;
         }
 
@@ -98,8 +92,8 @@ namespace Jih.Unity.Infrastructure.Deterministics
             236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180,
         };
 
-        static readonly F32 F32_6 = F32.FromInt(6);
-        static readonly F32 F32_15 = F32.FromInt(15);
-        static readonly F32 F32_10 = F32.FromInt(10);
+        static readonly F64 F64_6 = F64.FromLong(6);
+        static readonly F64 F64_15 = F64.FromLong(15);
+        static readonly F64 F64_10 = F64.FromLong(10);
     }
 }

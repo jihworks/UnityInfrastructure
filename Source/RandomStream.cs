@@ -68,9 +68,9 @@ namespace Jih.Unity.Infrastructure
         {
             return _generator.GenerateDouble01(_position);
         }
-        public F32 GetF32()
+        public F64 GetF64()
         {
-            return _generator.GenerateF32(_position);
+            return _generator.GenerateF64(_position);
         }
         public bool GetBoolean()
         {
@@ -101,9 +101,9 @@ namespace Jih.Unity.Infrastructure
         {
             return _generator.GenerateDouble01(checked(_position++));
         }
-        public F32 NextF32()
+        public F64 NextF64()
         {
-            return _generator.GenerateF32(checked(_position++));
+            return _generator.GenerateF64(checked(_position++));
         }
         public bool NextBoolean()
         {
