@@ -6,6 +6,7 @@
 #nullable enable
 
 using Jih.Unity.Infrastructure.Collections;
+using Jih.Unity.Infrastructure.Deterministics;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -358,6 +359,16 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             return HitTestPoint(point, orientation, out _);
         }
         public HexaCell? HitTestPoint(Vector2 point, in HexaOrientation orientation, out HexaCoordF hitCoord)
+        {
+            hitCoord = orientation.ScreenToHexa(point);
+            return GetCell((HexaCoord)hitCoord);
+        }
+
+        public HexaCell? HitTestPoint(Vector2F64 point, in HexaOrientationF64 orientation)
+        {
+            return HitTestPoint(point, orientation, out _);
+        }
+        public HexaCell? HitTestPoint(Vector2F64 point, in HexaOrientationF64 orientation, out HexaCoordF64 hitCoord)
         {
             hitCoord = orientation.ScreenToHexa(point);
             return GetCell((HexaCoord)hitCoord);
