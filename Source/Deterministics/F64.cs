@@ -53,7 +53,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         {
             if (v < int.MinValue || v > int.MaxValue)
             {
-                throw new OverflowException($"The value {v} is out of range for the F64 integer part.");
+                throw new OverflowException($"The value {v} is out of range for the {nameof(F64)} integer part.");
             }
             return new F64(v << FractionalBits);
         }
@@ -69,7 +69,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         {
             if (float.IsNaN(v) || float.IsInfinity(v))
             {
-                throw new NotFiniteNumberException($"Cannot convert {v} to F64.");
+                throw new NotFiniteNumberException($"Cannot convert {v} to {nameof(F64)}.");
             }
             return new F64(checked((long)MathF.Round(v * OneRaw)));
         }
@@ -78,7 +78,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         {
             if (double.IsNaN(v) || double.IsInfinity(v))
             {
-                throw new NotFiniteNumberException($"Cannot convert {v} to F64.");
+                throw new NotFiniteNumberException($"Cannot convert {v} to {nameof(F64)}.");
             }
             return new F64(checked((long)Math.Round(v * OneRaw)));
         }
@@ -190,7 +190,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
             long finalRaw = (long)shifted;
             if (finalRaw < 0L)
             {
-                throw new OverflowException("F64 Multiplication overflowed.");
+                throw new OverflowException($"{nameof(F64)} Multiplication overflowed.");
             }
 
             return isNegative ? new F64(-finalRaw) : new F64(finalRaw);
@@ -215,7 +215,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
             long finalRaw = (long)result;
             if (finalRaw < 0)
             {
-                throw new OverflowException("F64 Division overflowed.");
+                throw new OverflowException($"{nameof(F64)} Division overflowed.");
             }
 
             return isNegative ? new F64(-finalRaw) : new F64(finalRaw);

@@ -15,7 +15,7 @@ using System;
 public class JsonSaveLoadTestScript
 {
     [Test]
-    public void F64LoadTest()
+    public void F64Test()
     {
         TestData testSource = new()
         {
@@ -31,7 +31,7 @@ public class JsonSaveLoadTestScript
     }
 
     [Test]
-    public void Vector2F64SaveLoadTest()
+    public void Vector2F64Test()
     {
         TestData testSource = new()
         {
@@ -47,7 +47,7 @@ public class JsonSaveLoadTestScript
     }
 
     [Test]
-    public void Vector3F64SaveLoadTest()
+    public void Vector3F64Test()
     {
         TestData testSource = new()
         {
@@ -63,7 +63,7 @@ public class JsonSaveLoadTestScript
     }
 
     [Test]
-    public void HexaCoordSaveLoadTest()
+    public void HexaCoordTest()
     {
         TestData testSource = new()
         {
@@ -79,7 +79,7 @@ public class JsonSaveLoadTestScript
     }
 
     [Test]
-    public void HexaCoordF64SaveLoadTest()
+    public void HexaCoordF64Test()
     {
         TestData testSource = new()
         {

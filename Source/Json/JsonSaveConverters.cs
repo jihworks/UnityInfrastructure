@@ -28,7 +28,7 @@ namespace Jih.Unity.Infrastructure.Json
         {
             if (reader.TokenType is JsonToken.Null)
             {
-                return F64.Zero;
+                throw new FormatException($"Failed to read {nameof(F64)}.");
             }
 
             long rawValue = Convert.ToInt64(reader.Value);
@@ -50,38 +50,36 @@ namespace Jih.Unity.Infrastructure.Json
 
         public override Vector2F64 ReadJson(JsonReader reader, Type objectType, Vector2F64 existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType is JsonToken.Null)
-            {
-                return Vector2F64.Zero;
-            }
-
             if (reader.TokenType is not JsonToken.StartArray)
             {
-                return Vector2F64.Zero;
+                goto FAILED;
             }
             if (!reader.Read())
             {
-                return Vector2F64.Zero;
+                goto FAILED;
             }
 
             long xRaw = Convert.ToInt64(reader.Value);
             if (!reader.Read())
             {
-                return Vector2F64.Zero;
+                goto FAILED;
             }
 
             long yRaw = Convert.ToInt64(reader.Value);
             if (!reader.Read())
             {
-                return Vector2F64.Zero;
+                goto FAILED;
             }
 
             if (reader.TokenType is not JsonToken.EndArray)
             {
-                return Vector2F64.Zero;
+                goto FAILED;
             }
 
             return new Vector2F64(F64.FromRaw(xRaw), F64.FromRaw(yRaw));
+
+        FAILED:
+            throw new FormatException($"Failed to read {nameof(Vector2F64)}.");
         }
     }
 
@@ -100,44 +98,42 @@ namespace Jih.Unity.Infrastructure.Json
 
         public override Vector3F64 ReadJson(JsonReader reader, Type objectType, Vector3F64 existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType is JsonToken.Null)
-            {
-                return Vector3F64.Zero;
-            }
-
             if (reader.TokenType is not JsonToken.StartArray)
             {
-                return Vector3F64.Zero;
+                goto FAILED;
             }
             if (!reader.Read())
             {
-                return Vector3F64.Zero;
+                goto FAILED;
             }
 
             long xRaw = Convert.ToInt64(reader.Value);
             if (!reader.Read())
             {
-                return Vector3F64.Zero;
+                goto FAILED;
             }
 
             long yRaw = Convert.ToInt64(reader.Value);
             if (!reader.Read())
             {
-                return Vector3F64.Zero;
+                goto FAILED;
             }
 
             long zRaw = Convert.ToInt64(reader.Value);
             if (!reader.Read())
             {
-                return Vector3F64.Zero;
+                goto FAILED;
             }
 
             if (reader.TokenType is not JsonToken.EndArray)
             {
-                return Vector3F64.Zero;
+                goto FAILED;
             }
 
             return new Vector3F64(F64.FromRaw(xRaw), F64.FromRaw(yRaw), F64.FromRaw(zRaw));
+
+        FAILED:
+            throw new FormatException($"Failed to read {nameof(Vector3F64)}.");
         }
     }
 
@@ -156,44 +152,42 @@ namespace Jih.Unity.Infrastructure.Json
 
         public override HexaCoord ReadJson(JsonReader reader, Type objectType, HexaCoord existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType is JsonToken.Null)
-            {
-                return default;
-            }
-
             if (reader.TokenType is not JsonToken.StartArray)
             {
-                return default;
+                goto FAILED;
             }
             if (!reader.Read())
             {
-                return default;
-            }
-
-            int x = Convert.ToInt32(reader.Value);
-            if (!reader.Read())
-            {
-                return default;
+                goto FAILED;
             }
 
-            int y = Convert.ToInt32(reader.Value);
+            int a = Convert.ToInt32(reader.Value);
             if (!reader.Read())
             {
-                return default;
+                goto FAILED;
             }
 
-            int z = Convert.ToInt32(reader.Value);
+            int b = Convert.ToInt32(reader.Value);
             if (!reader.Read())
             {
-                return default;
+                goto FAILED;
+            }
+
+            int c = Convert.ToInt32(reader.Value);
+            if (!reader.Read())
+            {
+                goto FAILED;
             }
 
             if (reader.TokenType is not JsonToken.EndArray)
             {
-                return default;
+                goto FAILED;
             }
 
-            return new HexaCoord(x, y, z);
+            return new HexaCoord(a, b, c);
+
+        FAILED:
+            throw new FormatException($"Failed to read {nameof(HexaCoord)}.");
         }
     }
 
@@ -212,44 +206,42 @@ namespace Jih.Unity.Infrastructure.Json
 
         public override HexaCoordF64 ReadJson(JsonReader reader, Type objectType, HexaCoordF64 existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType is JsonToken.Null)
-            {
-                return default;
-            }
-
             if (reader.TokenType is not JsonToken.StartArray)
             {
-                return default;
+                goto FAILED;
             }
             if (!reader.Read())
             {
-                return default;
-            }
-
-            long xRaw = Convert.ToInt64(reader.Value);
-            if (!reader.Read())
-            {
-                return default;
+                goto FAILED;
             }
 
-            long yRaw = Convert.ToInt64(reader.Value);
+            long aRaw = Convert.ToInt64(reader.Value);
             if (!reader.Read())
             {
-                return default;
+                goto FAILED;
             }
 
-            long zRaw = Convert.ToInt64(reader.Value);
+            long bRaw = Convert.ToInt64(reader.Value);
             if (!reader.Read())
             {
-                return default;
+                goto FAILED;
+            }
+
+            long cRaw = Convert.ToInt64(reader.Value);
+            if (!reader.Read())
+            {
+                goto FAILED;
             }
 
             if (reader.TokenType is not JsonToken.EndArray)
             {
-                return default;
+                goto FAILED;
             }
 
-            return new HexaCoordF64(F64.FromRaw(xRaw), F64.FromRaw(yRaw), F64.FromRaw(zRaw));
+            return new HexaCoordF64(F64.FromRaw(aRaw), F64.FromRaw(bRaw), F64.FromRaw(cRaw));
+
+        FAILED:
+            throw new FormatException($"Failed to read {nameof(HexaCoordF64)}.");
         }
     }
 }
