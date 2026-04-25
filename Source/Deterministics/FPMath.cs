@@ -140,11 +140,12 @@ namespace Jih.Unity.Infrastructure.Deterministics
             long fraction = raw & F64.FractionMask;
             long floorRaw = raw & F64.IntegerMask;
 
-            if (fraction < 0x8000)
+            long halfRaw = F64.Half.RawValue;
+            if (fraction < halfRaw)
             {
                 return F64.FromRaw(floorRaw);
             }
-            if (fraction > 0x8000)
+            if (fraction > halfRaw)
             {
                 return F64.FromRaw(floorRaw + F64.OneRaw);
             }
