@@ -1,11 +1,16 @@
+﻿// © 2026 Jong-il Hong
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+//
+// SPDX-License-Identifier: MIT
+
+#nullable enable
+
 using Jih.Unity.Infrastructure.Deterministics;
 using Jih.Unity.Infrastructure.HexaGrid;
 using Jih.Unity.Infrastructure.Json;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
-
-#nullable enable
 
 public class JsonSaveLoadTestScript
 {
