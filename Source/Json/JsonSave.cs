@@ -81,6 +81,13 @@ namespace Jih.Unity.Infrastructure.Json
 
                 Formatting = Formatting.Indented,
             };
+            // Custom types.
+            result.Converters.Add(JsonSaveF64Converter.Instance);
+            result.Converters.Add(JsonSaveVector2F64Converter.Instance);
+            result.Converters.Add(JsonSaveVector3F64Converter.Instance);
+            result.Converters.Add(JsonSaveHexaCoordConverter.Instance);
+            result.Converters.Add(JsonSaveHexaCoordF64Converter.Instance);
+
             _settings.TryAdd(runtimeRootNamespace, result);
 
             return result;

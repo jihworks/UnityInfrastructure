@@ -7,6 +7,8 @@
 
 #if INFRASTRUCTURE_USE_NEWTONSOFT_JSON
 
+using Jih.Unity.Infrastructure.Deterministics;
+using Jih.Unity.Infrastructure.HexaGrid;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -19,7 +21,15 @@ namespace Jih.Unity.Infrastructure.Json
     class JsonSaveContractResolver : DefaultContractResolver
     {
         // Value is dummy.
-        static readonly ConcurrentDictionary<Type, bool> _checkedTypes = new();
+        static readonly ConcurrentDictionary<Type, bool> _checkedTypes = new(new KeyValuePair<Type, bool>[]
+        {
+            // Skipping custom converter types.
+            new(typeof(F64), true),
+            new(typeof(Vector2F64), true),
+            new(typeof(Vector3F64), true),
+            new(typeof(HexaCoord), true),
+            new(typeof(HexaCoordF64), true),
+        });
 
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
