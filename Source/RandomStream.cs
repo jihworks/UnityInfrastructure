@@ -16,10 +16,10 @@ namespace Jih.Unity.Infrastructure
     /// <remarks>
     /// <b>NOT</b> thread-safe.<br/>
     /// <br/>
-    /// Guarantees deterministic results. Even <c>double</c>s.
+    /// Deterministic-safe.
     /// </remarks>
     /// <seealso cref="Philox4x32"/>
-    public class RandomStream : IRandomInt32, IRandomDouble, IRandomDouble01
+    public class RandomStream : IRandomInt32, IRandomDouble, IRandomDouble01, IRandomF64
     {
         public int Seed { get; }
 

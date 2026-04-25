@@ -16,9 +16,9 @@ namespace Jih.Unity.Infrastructure.Deterministics
     /// </summary>
     /// <remarks>
     /// This implementation does not use caching. Generating occurs on demand.<br/>
-    /// Thread-safe.
+    /// Thread-safe.<br/>
     /// <br/>
-    /// Guarantees deterministic results. Even <c>double</c>s.
+    /// Deterministic-safe.
     /// </remarks>
     public readonly struct Philox4x32
     {

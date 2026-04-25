@@ -16,6 +16,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
 
         public HexaVertexIndex Index { get; }
         public HexaCoordF Coord { get; }
+        public HexaCoordF64 CoordF64 { get; }
 
         internal HexaCell?[] CellsInternal { get; } = new HexaCell?[6];
         /// <remarks>
@@ -33,11 +34,12 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         /// </remarks>
         public IReadOnlyList<HexaEdge?> Edges => EdgesInternal;
 
-        public HexaVertex(HexaMap map, HexaVertexIndex index, HexaCoordF coord)
+        public HexaVertex(HexaMap map, HexaVertexIndex index, HexaCoordF coord, HexaCoordF64 coordF64)
         {
             Map = map;
             Index = index;
             Coord = coord;
+            CoordF64 = coordF64;
         }
 
         public HexaCell? GetCell(HexaVertexPosition position)

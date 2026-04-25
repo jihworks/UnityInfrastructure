@@ -43,7 +43,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         /// <remarks>
         /// Deterministic-safe.<br/>
         /// <br/>
-        /// But possibly losing precision. Losing precision is also deterministic-safe.<br/>
+        /// But possibly losing precision. The loss itself is also deterministic-safe.<br/>
         /// <br/>
         /// Even though, strongly recommend isolating calculations in deterministic-safe states.
         /// </remarks>
@@ -124,7 +124,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         /// <br/>
         /// The returned value itself is deterministic-safe.<br/>
         /// And, converting back to <see cref="F64"/> <b>without modification</b> is also deterministic-safe. But losing precision.<br/>
-        /// Losing precision is also deterministic-safe.<br/>
+        /// The loss itself is also deterministic-safe.<br/>
         /// <br/>
         /// Even though, strongly recommend isolating calculations in deterministic-safe states.
         /// </remarks>
@@ -291,6 +291,16 @@ namespace Jih.Unity.Infrastructure.Deterministics
         /// Approx. <c>2147483647.9999999997</c>
         /// </summary>
         public static readonly F64 MaxValue = new(long.MaxValue);
+
+        /// <summary>
+        /// Detectable minimum difference value.
+        /// </summary>
+        public static readonly F64 Epsilon = FromRaw(1L);
+
+        /// <summary>
+        /// Approx. <c>0.0001</c>
+        /// </summary>
+        public static readonly F64 LogicalTolerance = FromRaw(429497L);
 
         internal const int FractionalBits = 32;
         internal const long OneRaw = 1L << FractionalBits; // 4294967296

@@ -5,6 +5,7 @@
 
 #nullable enable
 
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Jih.Unity.Infrastructure.Deterministics
@@ -12,14 +13,14 @@ namespace Jih.Unity.Infrastructure.Deterministics
     public static class FPMath
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F64 Sqrt(this F64 v)
+        public static F64 Sqrt(this F64 value)
         {
-            if (v.RawValue <= 0)
+            if (value.RawValue <= 0)
             {
                 return F64.Zero;
             }
 
-            ulong numHi = (ulong)v.RawValue;
+            ulong numHi = (ulong)value.RawValue;
 
             ulong res = 0;
             ulong rem = 0;
@@ -45,25 +46,25 @@ namespace Jih.Unity.Infrastructure.Deterministics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F64 Min(F64 a, F64 b)
+        public static F64 Min(F64 left, F64 right)
         {
-            return a.RawValue < b.RawValue ? a : b;
+            return left.RawValue < right.RawValue ? left : right;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Min(ref F64 a, F64 b)
+        public static void Min(ref F64 left, F64 right)
         {
-            a = Min(a, b);
+            left = Min(left, right);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F64 Max(F64 a, F64 b)
+        public static F64 Max(F64 left, F64 right)
         {
-            return a.RawValue > b.RawValue ? a : b;
+            return left.RawValue > right.RawValue ? left : right;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Max(ref F64 a, F64 b)
+        public static void Max(ref F64 left, F64 right)
         {
-            a = Max(a, b);
+            left = Max(left, right);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -97,9 +98,9 @@ namespace Jih.Unity.Infrastructure.Deterministics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F64 Abs(this F64 v)
+        public static F64 Abs(this F64 value)
         {
-            return v.RawValue < 0 ? F64.FromRaw(-v.RawValue) : v;
+            return value.RawValue < 0 ? F64.FromRaw(checked(-value.RawValue)) : value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -160,9 +161,9 @@ namespace Jih.Unity.Infrastructure.Deterministics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static F64 Lerp(F64 a, F64 b, F64 t)
+        public static F64 Lerp(F64 left, F64 right, F64 alpha)
         {
-            return a + (b - a) * t;
+            return left + (right - left) * alpha;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -178,9 +179,114 @@ namespace Jih.Unity.Infrastructure.Deterministics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static F64 SafeInverse(this F64 right)
+        {
+            return right.RawValue == 0 ? F64.Zero : F64.One / right;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2F64 RadiusVector(int degrees)
         {
             return new Vector2F64(FPLut.Cos(degrees), FPLut.Sin(degrees));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearly(this F64 left, F64 right, F64 tolerance)
+        {
+            return Abs(left - right) <= tolerance;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearly(this Vector2F64 left, Vector2F64 right, F64 tolerance)
+        {
+            return
+                Abs(left.X - right.X) <= tolerance &&
+                Abs(left.Y - right.Y) <= tolerance;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearly(this Vector3F64 left, Vector3F64 right, F64 tolerance)
+        {
+            return
+                Abs(left.X - right.X) <= tolerance &&
+                Abs(left.Y - right.Y) <= tolerance &&
+                Abs(left.Z - right.Z) <= tolerance;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearly(this F64 left, F64 right)
+        {
+            return IsNearly(left, right, F64.LogicalTolerance);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearly(this Vector2F64 left, Vector2F64 right)
+        {
+            return IsNearly(left, right, F64.LogicalTolerance);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearly(this Vector3F64 left, Vector3F64 right)
+        {
+            return IsNearly(left, right, F64.LogicalTolerance);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearlyZero(this F64 value, F64 tolerance)
+        {
+            return Abs(value) <= tolerance;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearlyZero(this Vector2F64 value, F64 tolerance)
+        {
+            return
+                Abs(value.X) <= tolerance &&
+                Abs(value.Y) <= tolerance;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearlyZero(this Vector3F64 value, F64 tolerance)
+        {
+            return
+                Abs(value.X) <= tolerance &&
+                Abs(value.Y) <= tolerance &&
+                Abs(value.Z) <= tolerance;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearlyZero(this F64 value)
+        {
+            return IsNearlyZero(value, F64.LogicalTolerance);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearlyZero(this Vector2F64 value)
+        {
+            return IsNearlyZero(value, F64.LogicalTolerance);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNearlyZero(this Vector3F64 value)
+        {
+            return IsNearlyZero(value, F64.LogicalTolerance);
+        }
+
+        /// <inheritdoc cref="MathEx.GetClosestPointOnLine(UnityEngine.Vector3, UnityEngine.Vector3, UnityEngine.Vector3)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3F64 GetClosestPointOnLine(Vector3F64 lineStart, Vector3F64 lineEnd, Vector3F64 point)
+        {
+            F64 t = GetClosestPointPositionOnLine(lineStart, lineEnd, point);
+            return lineStart + (lineEnd - lineStart) * t;
+        }
+
+        /// <inheritdoc cref="MathEx.GetClosestPointPositionOnLine(UnityEngine.Vector3, UnityEngine.Vector3, UnityEngine.Vector3)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static F64 GetClosestPointPositionOnLine(Vector3F64 lineStart, Vector3F64 lineEnd, Vector3F64 point)
+        {
+            Vector3F64 lineDirection = lineEnd - lineStart;
+            F64 lineLengthSq = lineDirection.LengthSquared();
+
+            if (lineLengthSq.IsNearlyZero())
+            {
+                return F64.Zero;
+            }
+
+            F64 dotProduct = Vector3F64.Dot(point - lineStart, lineDirection) / lineLengthSq;
+
+            return Clamp01(dotProduct);
         }
     }
 }

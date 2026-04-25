@@ -42,16 +42,16 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         /// <summary>
         /// Rotate the coordinate 60 degrees in CW with origin(0, 0, 0) as axis.
         /// </summary>
-        public static HexaCoord RotateCw(in HexaCoord hexCoord)
+        public static HexaCoord RotateCw(in HexaCoord coord)
         {
-            return new(-hexCoord.B, -hexCoord.C, -hexCoord.A);
+            return new(-coord.B, -coord.C, -coord.A);
         }
         /// <summary>
         /// Rotate the coordinate 60 degrees in CCW with origin(0, 0, 0) as axis.
         /// </summary>
-        public static HexaCoord RotateCcw(in HexaCoord hexCoord)
+        public static HexaCoord RotateCcw(in HexaCoord coord)
         {
-            return new(-hexCoord.C, -hexCoord.A, -hexCoord.B);
+            return new(-coord.C, -coord.A, -coord.B);
         }
 
         public static int Distance(in HexaCoord left, in HexaCoord right)
@@ -199,9 +199,13 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             return Multiply(left, scale);
         }
 
-        public static implicit operator HexaCoordF(HexaCoord hexCoord)
+        public static implicit operator HexaCoordF(HexaCoord coord)
         {
-            return new(hexCoord.A, hexCoord.B, hexCoord.C);
+            return new HexaCoordF(coord.A, coord.B, coord.C);
+        }
+        public static implicit operator HexaCoordF64(HexaCoord coord)
+        {
+            return new HexaCoordF64(coord.A, coord.B, coord.C);
         }
 
         public static bool operator ==(HexaCoord left, HexaCoord right)

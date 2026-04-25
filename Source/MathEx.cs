@@ -611,19 +611,20 @@ namespace Jih.Unity.Infrastructure
         /// </summary>
         /// <param name="point">The point to find the closest point to.</param>
         /// <returns>A position value t in range [0, 1] representing the closest point on the line.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GetClosestPointPositionOnLine(Vector3 lineStart, Vector3 lineEnd, Vector3 point)
         {
             Vector3 lineDirection = lineEnd - lineStart;
-            float sqrLineLength = lineDirection.sqrMagnitude;
+            float lineLengthSq = lineDirection.sqrMagnitude;
 
-            // Handle degenerate case where line is a point
-            if (sqrLineLength.IsNearlyZero())
+            // Handle degenerate case where line is a point.
+            if (lineLengthSq.IsNearlyZero())
             {
                 return 0f;
             }
 
-            // Project (point - lineStart) onto lineDirection
-            float dotProduct = Vector3.Dot(point - lineStart, lineDirection) / sqrLineLength;
+            // Project (point - lineStart) onto lineDirection.
+            float dotProduct = Vector3.Dot(point - lineStart, lineDirection) / lineLengthSq;
 
             return Math.Clamp(dotProduct, 0f, 1f);
         }

@@ -5,6 +5,7 @@
 
 #nullable enable
 
+using Jih.Unity.Infrastructure.Deterministics;
 using System;
 using System.Buffers.Binary;
 
@@ -16,7 +17,7 @@ namespace Jih.Unity.Infrastructure
     public interface IRandomInt32
     {
         /// <summary>
-        /// Get a random <c>int</c> that is greater than or equal to <paramref name="minInclusive"/> and <b>less</b> than <paramref name="maxExclusive"/>.
+        /// Gets a random <c>int</c> that is greater than or equal to <paramref name="minInclusive"/> and <b>less</b> than <paramref name="maxExclusive"/>.
         /// </summary>
         /// <remarks>
         /// The distribution of returned values must be approximately uniform across the range of possible values.
@@ -32,7 +33,7 @@ namespace Jih.Unity.Infrastructure
     public interface IRandomDouble
     {
         /// <summary>
-        /// Get a random <c>double</c> in [0, 1) range.
+        /// Gets a random <c>double</c> in [0, 1) range.
         /// </summary>
         /// <remarks>
         /// This approach never returns <c>1.0</c> but provides mathematically perfect random numbers.<br/>
@@ -47,7 +48,7 @@ namespace Jih.Unity.Infrastructure
     public interface IRandomDouble01
     {
         /// <summary>
-        /// Get a random <c>double</c> in [0, 1] range.
+        /// Gets a random <c>double</c> in [0, 1] range.
         /// </summary>
         /// <remarks>
         /// This approach <b>cannot</b> provide mathematically perfect random numbers but the error is negligible.<br/>
@@ -55,6 +56,19 @@ namespace Jih.Unity.Infrastructure
         /// </remarks>
         /// <returns>[0, 1]</returns>
         double NextDouble01();
+    }
+
+    /// <seealso cref="RandomStream"/>
+    public interface IRandomF64
+    {
+        /// <summary>
+        /// Gets a random <see cref="F64"/> in [0, 1) range.
+        /// </summary>
+        /// <remarks>
+        /// Deterministic-safe.
+        /// </remarks>
+        /// <returns>[0, 1)</returns>
+        F64 NextF64();
     }
 
     public class SystemRandom : Random, IRandomInt32, IRandomDouble, IRandomDouble01

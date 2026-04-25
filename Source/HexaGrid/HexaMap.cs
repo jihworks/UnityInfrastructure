@@ -58,7 +58,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             Height = height;
 
             createHexaCell ??= ((map, index, coord) => new HexaCell(map, index, coord));
-            createHexaVertex ??= ((map, index, coord) => new HexaVertex(map, index, coord));
+            createHexaVertex ??= ((map, index, coord, coordF64) => new HexaVertex(map, index, coord, coordF64));
             createHexaEdge ??= ((vertex0, vertex1, index, rightCell) => new HexaEdge(vertex0, vertex1, index, rightCell));
 
             _cells = new HexaCell[height, width];
@@ -110,8 +110,9 @@ namespace Jih.Unity.Infrastructure.HexaGrid
                 if (vertex is null)
                 {
                     HexaCoordF offset = vertexPosition.GetOffset();
+                    HexaCoordF64 offsetF64 = vertexPosition.GetOffsetF64();
 
-                    vertex = create(self, index, cellCoord + offset);
+                    vertex = create(self, index, cellCoord + offset, cellCoord + offsetF64);
                 }
 
                 return vertex;

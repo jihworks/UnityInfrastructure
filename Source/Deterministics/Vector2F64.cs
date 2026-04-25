@@ -77,7 +77,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
 
         public static F64 Cross(in Vector2F64 left, in Vector2F64 right)
         {
-            return left.X * right.Y - left.Y * right.X; ;
+            return left.X * right.Y - left.Y * right.X;
         }
         public static F64 Dot(in Vector2F64 left, in Vector2F64 right)
         {
@@ -95,6 +95,14 @@ namespace Jih.Unity.Infrastructure.Deterministics
 
         public F64 X, Y;
 
+        public Vector2F64(F64 x, F64 y)
+        {
+            X = x;
+            Y = y;
+        }
+        public Vector2F64(F64 uniform) : this(uniform, uniform)
+        {
+        }
         public Vector2F64(ReadOnlySpan<F64> values)
         {
             if (values.Length < 2)
@@ -103,14 +111,6 @@ namespace Jih.Unity.Infrastructure.Deterministics
             }
             X = values[0];
             Y = values[1];
-        }
-        public Vector2F64(F64 uniform) : this(uniform, uniform)
-        {
-        }
-        public Vector2F64(F64 x, F64 y)
-        {
-            X = x;
-            Y = y;
         }
 
         public readonly F64 Length()
@@ -152,10 +152,16 @@ namespace Jih.Unity.Infrastructure.Deterministics
             return $"<{X}, {Y}>";
         }
 
+        /// <remarks>
+        /// Deterministic-safe.
+        /// </remarks>
         public static explicit operator Vector2F64(Vector2 vector)
         {
             return new Vector2F64((F64)vector.x, (F64)vector.y);
         }
+        /// <remarks>
+        /// <b>NOT</b> deterministic-safe.
+        /// </remarks>
         public static explicit operator Vector2(Vector2F64 vector)
         {
             return new Vector2((float)vector.X, (float)vector.Y);

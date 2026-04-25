@@ -5,6 +5,7 @@
 
 #nullable enable
 
+using Jih.Unity.Infrastructure.Deterministics;
 using System.Runtime.CompilerServices;
 
 namespace Jih.Unity.Infrastructure.HexaGrid
@@ -40,7 +41,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaCoord GetOffset(this HexaNeighborPosition position)
         {
-            return _neighborsOffsets[(int)position];
+            return _neighborOffsets[(int)position];
         }
         /// <summary>
         /// Get next CW position.
@@ -95,6 +96,11 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         public static HexaCoordF GetOffset(this HexaVertexPosition position)
         {
             return _vertexOffsets[(int)position];
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static HexaCoordF64 GetOffsetF64(this HexaVertexPosition position)
+        {
+            return _vertexOffsetsF64[(int)position];
         }
         /// <summary>
         /// Get a radius angle degrees from given hexa-position in general cartesian space<i>(+Y up)</i>.
@@ -174,7 +180,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             return (HexaDiagonalPosition)position;
         }
 
-        static readonly HexaCoord[] _neighborsOffsets = new HexaCoord[]
+        static readonly HexaCoord[] _neighborOffsets = new HexaCoord[]
         {
             new(+1, -1, 0), new(+1, 0, -1), new(0, +1, -1), new(-1, +1, 0), new(-1, 0, +1), new(0, -1, +1),
         };
@@ -191,6 +197,15 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             new(-1f / 3f, +2f / 3f, -1f / 3f),
             new(-2f / 3f, +1f / 3f, +1f / 3f),
             new(-1f / 3f, -1f / 3f, +2f / 3f),
+        };
+        static readonly HexaCoordF64[] _vertexOffsetsF64 = new HexaCoordF64[]
+        {
+            new(+1 / (F64)3, -2 / (F64)3, +1 / (F64)3),
+            new(+2 / (F64)3, -1 / (F64)3, -1 / (F64)3),
+            new(+1 / (F64)3, +1 / (F64)3, -2 / (F64)3),
+            new(-1 / (F64)3, +2 / (F64)3, -1 / (F64)3),
+            new(-2 / (F64)3, +1 / (F64)3, +1 / (F64)3),
+            new(-1 / (F64)3, -1 / (F64)3, +2 / (F64)3),
         };
     }
 }

@@ -5,33 +5,34 @@
 
 #nullable enable
 
+using Jih.Unity.Infrastructure.Deterministics;
 using System;
 
 namespace Jih.Unity.Infrastructure.HexaGrid
 {
-    public readonly struct HexaCoordF : IEquatable<HexaCoordF>
+    public readonly struct HexaCoordF64 : IEquatable<HexaCoordF64>
     {
-        public static HexaCoordF Add(in HexaCoordF left, in HexaCoordF right)
+        public static HexaCoordF64 Add(in HexaCoordF64 left, in HexaCoordF64 right)
         {
             return new(left.A + right.A, left.B + right.B, left.C + right.C);
         }
-        public static HexaCoordF Subtract(in HexaCoordF left, in HexaCoordF right)
+        public static HexaCoordF64 Subtract(in HexaCoordF64 left, in HexaCoordF64 right)
         {
             return new(left.A - right.A, left.B - right.B, left.C - right.C);
         }
-        public static HexaCoordF Multiply(in HexaCoordF left, int scale)
+        public static HexaCoordF64 Multiply(in HexaCoordF64 left, int scale)
         {
             return new(left.A * scale, left.B * scale, left.C * scale);
         }
 
-        public static HexaCoord Round(in HexaCoordF coord)
+        public static HexaCoord Round(in HexaCoordF64 coord)
         {
-            int a = (int)Math.Round(coord.A);
-            int b = (int)Math.Round(coord.B);
-            int c = (int)Math.Round(coord.C);
-            double da = Math.Abs(a - coord.A);
-            double db = Math.Abs(b - coord.B);
-            double dc = Math.Abs(c - coord.C);
+            int a = (int)FPMath.Round(coord.A);
+            int b = (int)FPMath.Round(coord.B);
+            int c = (int)FPMath.Round(coord.C);
+            F64 da = FPMath.Abs(a - coord.A);
+            F64 db = FPMath.Abs(b - coord.B);
+            F64 dc = FPMath.Abs(c - coord.C);
             if (da > db && da > dc)
             {
                 a = -b - c;
@@ -47,21 +48,21 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             return new HexaCoord(a, b, c);
         }
 
-        public static float Distance(in HexaCoordF left, in HexaCoordF right)
+        public static F64 Distance(in HexaCoordF64 left, in HexaCoordF64 right)
         {
             return Subtract(left, right).GetLength();
         }
 
-        public static HexaCoordF Lerp(in HexaCoordF left, in HexaCoordF right, float alpha)
+        public static HexaCoordF64 Lerp(in HexaCoordF64 left, in HexaCoordF64 right, F64 alpha)
         {
-            return new(MathEx.Lerp(left.A, right.A, alpha), MathEx.Lerp(left.B, right.B, alpha), MathEx.Lerp(left.C, right.C, alpha));
+            return new(FPMath.Lerp(left.A, right.A, alpha), FPMath.Lerp(left.B, right.B, alpha), FPMath.Lerp(left.C, right.C, alpha));
         }
 
-        public readonly float A, B, C;
+        public readonly F64 A, B, C;
 
-        public HexaCoordF(float a, float b, float c)
+        public HexaCoordF64(F64 a, F64 b, F64 c)
         {
-            if (Math.Round(a + b + c) != 0f)
+            if (FPMath.Round(a + b + c) != F64.Zero)
             {
                 throw new InvalidOperationException("Invalid hexa coordinate.");
             }
@@ -70,9 +71,9 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             C = c;
         }
 
-        public readonly float GetLength()
+        public readonly F64 GetLength()
         {
-            return (Math.Abs(A) + Math.Abs(B) + Math.Abs(C)) / 2f;
+            return (FPMath.Abs(A) + FPMath.Abs(B) + FPMath.Abs(C)) / 2;
         }
 
         public readonly override string ToString()
@@ -82,10 +83,10 @@ namespace Jih.Unity.Infrastructure.HexaGrid
 
         public readonly override bool Equals(object? obj)
         {
-            return obj is HexaCoordF f && Equals(f);
+            return obj is HexaCoordF64 f && Equals(f);
         }
 
-        public readonly bool Equals(HexaCoordF other)
+        public readonly bool Equals(HexaCoordF64 other)
         {
             return A == other.A &&
                    B == other.B &&
@@ -97,15 +98,15 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             return HashCode.Combine(A, B, C);
         }
 
-        public static HexaCoordF operator +(HexaCoordF left, HexaCoordF right)
+        public static HexaCoordF64 operator +(HexaCoordF64 left, HexaCoordF64 right)
         {
             return Add(left, right);
         }
-        public static HexaCoordF operator -(HexaCoordF left, HexaCoordF right)
+        public static HexaCoordF64 operator -(HexaCoordF64 left, HexaCoordF64 right)
         {
             return Subtract(left, right);
         }
-        public static HexaCoordF operator *(HexaCoordF left, int scale)
+        public static HexaCoordF64 operator *(HexaCoordF64 left, int scale)
         {
             return Multiply(left, scale);
         }
@@ -113,17 +114,17 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         /// <summary>
         /// Using round method.
         /// </summary>
-        /// <seealso cref="Round(in HexaCoordF)"/>
-        public static explicit operator HexaCoord(HexaCoordF coord)
+        /// <seealso cref="Round(in HexaCoordF64)"/>
+        public static explicit operator HexaCoord(HexaCoordF64 hexCoord)
         {
-            return Round(coord);
+            return Round(hexCoord);
         }
 
-        public static bool operator ==(HexaCoordF left, HexaCoordF right)
+        public static bool operator ==(HexaCoordF64 left, HexaCoordF64 right)
         {
             return left.Equals(right);
         }
-        public static bool operator !=(HexaCoordF left, HexaCoordF right)
+        public static bool operator !=(HexaCoordF64 left, HexaCoordF64 right)
         {
             return !(left == right);
         }
