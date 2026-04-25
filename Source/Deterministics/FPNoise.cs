@@ -92,8 +92,8 @@ namespace Jih.Unity.Infrastructure.Deterministics
             236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180,
         };
 
-        static readonly F64 F64_6 = F64.FromLong(6);
-        static readonly F64 F64_15 = F64.FromLong(15);
-        static readonly F64 F64_10 = F64.FromLong(10);
+        static readonly F64 F64_6 = F64.FromInt(6);
+        static readonly F64 F64_15 = F64.FromInt(15);
+        static readonly F64 F64_10 = F64.FromInt(10);
     }
 }

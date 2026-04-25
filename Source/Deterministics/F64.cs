@@ -35,8 +35,26 @@ namespace Jih.Unity.Infrastructure.Deterministics
         /// <remarks>
         /// Deterministic-safe.
         /// </remarks>
+        /// <param name="v">A value for integer part.</param>
+        public static F64 FromInt(int v)
+        {
+            return new F64(((long)v) << FractionalBits);
+        }
+        /// <remarks>
+        /// Deterministic-safe.<br/>
+        /// <br/>
+        /// The <paramref name="v"/> must be greater than or equal to <see cref="int.MinValue"/> AND less than or equal to <see cref="int.MaxValue"/>.<br/>
+        /// In effect, it must be a value within the same range as an <c>int</c>.<br/>
+        /// However, this method is provided for convenience.
+        /// </remarks>
+        /// <param name="v">A value for integer part. The value must be whthin the <c>int</c> range. Otherwise, it is an overflow.</param>
+        /// <exception cref="OverflowException">Throws when the <paramref name="v"/> is out of the <c>int</c> range.</exception>
         public static F64 FromLong(long v)
         {
+            if (v < int.MinValue || v > int.MaxValue)
+            {
+                throw new OverflowException($"The value {v} is out of range for the F64 integer part.");
+            }
             return new F64(v << FractionalBits);
         }
 
@@ -49,12 +67,20 @@ namespace Jih.Unity.Infrastructure.Deterministics
         /// </remarks>
         public static F64 FromFloat(float v)
         {
-            return new F64((long)MathF.Round(v * OneRaw));
+            if (float.IsNaN(v) || float.IsInfinity(v))
+            {
+                throw new NotFiniteNumberException($"Cannot convert {v} to F64.");
+            }
+            return new F64(checked((long)MathF.Round(v * OneRaw)));
         }
         /// <inheritdoc cref="FromFloat(float)"/>
         public static F64 FromDouble(double v)
         {
-            return new F64((long)Math.Round(v * OneRaw));
+            if (double.IsNaN(v) || double.IsInfinity(v))
+            {
+                throw new NotFiniteNumberException($"Cannot convert {v} to F64.");
+            }
+            return new F64(checked((long)Math.Round(v * OneRaw)));
         }
 
         /// <summary>
@@ -76,10 +102,10 @@ namespace Jih.Unity.Infrastructure.Deterministics
             RawValue = rawValue;
         }
 
-        /// <inheritdoc cref="FromLong(long)"/>
+        /// <inheritdoc cref="FromInt(int)"/>
         public static implicit operator F64(int v)
         {
-            return FromLong(v);
+            return FromInt(v);
         }
         /// <inheritdoc cref="FromLong(long)"/>
         public static implicit operator F64(long v)
@@ -130,46 +156,51 @@ namespace Jih.Unity.Infrastructure.Deterministics
         /// </remarks>
         public static explicit operator float(F64 v)
         {
-            return (float)v.RawValue / OneRaw;
+            return v.RawValue / (float)OneRaw;
         }
         /// <inheritdoc cref="explicit operator float"/>
         public static explicit operator double(F64 v)
         {
-            return (double)v.RawValue / OneRaw;
+            return v.RawValue / (double)OneRaw;
         }
 
+        /// <exception cref="OverflowException">Throws when arithmetic overflow is detected.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static F64 operator +(F64 l, F64 r)
         {
             return new F64(checked(l.RawValue + r.RawValue));
         }
+        /// <inheritdoc cref="operator +"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static F64 operator -(F64 l, F64 r)
         {
             return new F64(checked(l.RawValue - r.RawValue));
         }
+        /// <inheritdoc cref="operator +"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static F64 operator *(F64 l, F64 r)
         {
-            bool isNegative = (l.RawValue < 0) ^ (r.RawValue < 0);
-            ulong x = (ulong)(l.RawValue >= 0 ? l.RawValue : -l.RawValue);
-            ulong y = (ulong)(r.RawValue >= 0 ? r.RawValue : -r.RawValue);
+            bool isNegative = (l.RawValue < 0L) ^ (r.RawValue < 0L);
+            ulong x = (ulong)(l.RawValue >= 0L ? l.RawValue : -l.RawValue);
+            ulong y = (ulong)(r.RawValue >= 0L ? r.RawValue : -r.RawValue);
 
             UInt128 multResult = UInt128.Multiply(x, y);
             ulong shifted = multResult.ShiftRight32();
 
             long finalRaw = (long)shifted;
-            if (finalRaw < 0)
+            if (finalRaw < 0L)
             {
                 throw new OverflowException("F64 Multiplication overflowed.");
             }
 
             return isNegative ? new F64(-finalRaw) : new F64(finalRaw);
         }
+        /// <exception cref="DivideByZeroException">Throws when the divisor is 0.</exception>
+        /// <inheritdoc cref="operator +"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static F64 operator /(F64 l, F64 r)
         {
-            if (r.RawValue == 0)
+            if (r.RawValue == 0L)
             {
                 throw new DivideByZeroException();
             }
@@ -195,7 +226,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         {
             // (num << 32) / den
             ulong remainder = num >> 32;
-            ulong quotient = 0;
+            ulong quotient = 0ul;
             ulong num_lo = num << 32;
 
             for (int i = 0; i < 64; i++)
@@ -214,6 +245,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
             return quotient;
         }
 
+        /// <inheritdoc cref="operator +"/>
         public static F64 operator -(F64 v)
         {
             return new(checked(-v.RawValue));
@@ -272,7 +304,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
             return ((double)this).ToString("0.#########");
         }
 
-        public static readonly F64 Zero = new(0);
+        public static readonly F64 Zero = new(0L);
         public static readonly F64 One = new(OneRaw);
         /// <summary>
         /// <c>0.5</c>
@@ -303,9 +335,18 @@ namespace Jih.Unity.Infrastructure.Deterministics
         public static readonly F64 LogicalTolerance = FromRaw(429497L);
 
         internal const int FractionalBits = 32;
-        internal const long OneRaw = 1L << FractionalBits; // 4294967296
+        /// <summary>
+        /// <c>4294967296</c>
+        /// </summary>
+        internal const long OneRaw = 1L << FractionalBits;
 
-        internal const long FractionMask = 0xFFFFFFFFL; // Lower 32 bits. Frational part.
-        internal const long IntegerMask = ~0xFFFFFFFFL; // Upper 32 bits. Integer part.
+        /// <summary>
+        /// Lower 32 bits. Frational part.
+        /// </summary>
+        internal const long FractionMask = 0xFFFFFFFFL;
+        /// <summary>
+        /// Upper 32 bits. Integer part.
+        /// </summary>
+        internal const long IntegerMask = ~0xFFFFFFFFL;
     }
 }
