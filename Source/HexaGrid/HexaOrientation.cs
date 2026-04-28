@@ -60,5 +60,31 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             float b = B2 * pt.x + B3 * pt.y;
             return new HexaCoordF(a, b, -a - b);
         }
+
+        public Rect ScreenBounds(int mapWidth, int mapHeight)
+        {
+            if (mapWidth <= 0 || mapHeight <= 0)
+            {
+                return Rect.zero;
+            }
+
+            Rect rect = default;
+
+            rect.x = Origin.x - ScreenHorizontalSpacing * 0.5f;
+            rect.y = Origin.y - Radius.y;
+
+            float width = ScreenHorizontalSpacing * mapWidth;
+            if (mapHeight > 1)
+            {
+                width += ScreenHorizontalSpacing * 0.5f;
+            }
+            rect.width = width;
+
+            float height = ScreenVerticalSpacing * (mapHeight - 1);
+            height += Radius.y + Radius.y;
+            rect.height = height;
+
+            return rect;
+        }
     }
 }
