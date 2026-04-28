@@ -40,23 +40,6 @@ namespace Jih.Unity.Infrastructure.Deterministics
         {
             return new F64(((long)v) << FractionalBits);
         }
-        /// <remarks>
-        /// Deterministic-safe.<br/>
-        /// <br/>
-        /// The <paramref name="v"/> must be greater than or equal to <see cref="int.MinValue"/> AND less than or equal to <see cref="int.MaxValue"/>.<br/>
-        /// In effect, it must be a value within the same range as an <c>int</c>.<br/>
-        /// However, this method is provided for convenience.
-        /// </remarks>
-        /// <param name="v">A value for integer part. The value must be whthin the <c>int</c> range. Otherwise, it is an overflow.</param>
-        /// <exception cref="OverflowException">Throws when the <paramref name="v"/> is out of the <c>int</c> range.</exception>
-        public static F64 FromLong(long v)
-        {
-            if (v < int.MinValue || v > int.MaxValue)
-            {
-                throw new OverflowException($"The value {v} is out of range for the {nameof(F64)} integer part.");
-            }
-            return new F64(v << FractionalBits);
-        }
 
         /// <remarks>
         /// Deterministic-safe.<br/>
@@ -106,11 +89,6 @@ namespace Jih.Unity.Infrastructure.Deterministics
         public static implicit operator F64(int v)
         {
             return FromInt(v);
-        }
-        /// <inheritdoc cref="FromLong(long)"/>
-        public static implicit operator F64(long v)
-        {
-            return FromLong(v);
         }
 
         /// <inheritdoc cref="FromFloat(float)"/>

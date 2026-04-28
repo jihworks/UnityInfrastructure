@@ -29,15 +29,6 @@ namespace Jih.Unity.Infrastructure.Deterministics
             }
             return result;
         }
-        public static F64 SumF64(this IEnumerable<long> collection)
-        {
-            F64 result = 0;
-            foreach (var item in collection)
-            {
-                result += item;
-            }
-            return result;
-        }
 
         public static F64 AverageF64(this IEnumerable<F64> collection)
         {
@@ -51,17 +42,6 @@ namespace Jih.Unity.Infrastructure.Deterministics
             return sum / count;
         }
         public static F64 AverageF64(this IEnumerable<int> collection)
-        {
-            int count = 0;
-            F64 sum = 0;
-            foreach (var item in collection)
-            {
-                sum += item;
-                count++;
-            }
-            return sum / count;
-        }
-        public static F64 AverageF64(this IEnumerable<long> collection)
         {
             int count = 0;
             F64 sum = 0;

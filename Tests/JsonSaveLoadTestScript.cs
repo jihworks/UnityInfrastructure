@@ -51,7 +51,7 @@ public class JsonSaveLoadTestScript
     {
         TestData testSource = new()
         {
-            Vector3F64 = new Vector3F64(F64.FromDouble(0.123), F64.FromLong(0x7fff0000L), F64.FromInt(999)),
+            Vector3F64 = new Vector3F64(F64.FromDouble(0.123), F64.FromFloat(0.321f), F64.FromInt(999)),
         };
 
         string json = JsonSave.SerializeObject(testSource, typeof(TestData).Namespace);
