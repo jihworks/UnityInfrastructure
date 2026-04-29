@@ -86,5 +86,55 @@ namespace Jih.Unity.Infrastructure.HexaGrid
 
             return rect;
         }
+
+        public Rect ScreenRegionBounds(int startX, int startY, int width, int height)
+        {
+            if (width <= 0 || height <= 0)
+            {
+                return Rect.zero;
+            }
+
+            Rect rect = default;
+
+            rect.y = startY * ScreenVerticalSpacing + Origin.y - Radius.y;
+
+            float boundsHeight = ScreenVerticalSpacing * (height - 1);
+            boundsHeight += Radius.y + Radius.y;
+            rect.height = boundsHeight;
+
+            bool hasEvenRow = false, hasOddRow = false;
+            if (height == 1)
+            {
+                if ((startY & 1) == 0)
+                {
+                    hasEvenRow = true;
+                }
+                else
+                {
+                    hasOddRow = true;
+                }
+            }
+            else
+            {
+                hasEvenRow = true;
+                hasOddRow = true;
+            }
+
+            float minX = startX * ScreenHorizontalSpacing - ScreenHorizontalSpacing * 0.5f + Origin.x;
+            if (!hasEvenRow)
+            {
+                minX += ScreenHorizontalSpacing * 0.5f;
+            }
+            rect.x = minX;
+
+            float maxX = (startX + width) * ScreenHorizontalSpacing - ScreenHorizontalSpacing * 0.5f + Origin.x;
+            if (hasOddRow)
+            {
+                maxX += ScreenHorizontalSpacing * 0.5f;
+            }
+            rect.width = maxX - minX;
+
+            return rect;
+        }
     }
 }
