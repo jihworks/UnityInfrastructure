@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: MIT
 
-#ifndef INDIRECT_INSTANCING_INCLUDED
-#define INDIRECT_INSTANCING_INCLUDED
+#ifndef __INFRASTRUCTURE_INDIRECT_INSTANCING_INCLUDED__
+#define __INFRASTRUCTURE_INDIRECT_INSTANCING_INCLUDED__
 
 // Transform matrix buffer.
 StructuredBuffer<float4x4> _InstanceTransforms;

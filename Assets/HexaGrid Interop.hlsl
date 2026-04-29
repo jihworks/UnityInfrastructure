@@ -3,28 +3,29 @@
 //
 // SPDX-License-Identifier: MIT
 
-#ifndef HEXA_GRID_INTEROP_INCLUDED
-#define HEXA_GRID_INTEROP_INCLUDED
+#ifndef __INFRASTRUCTURE_HEXA_GRID_INTEROP_INCLUDED__
+#define __INFRASTRUCTURE_HEXA_GRID_INTEROP_INCLUDED__
 
-void GetNearestHexaVertexIndex_float(float3 worldLocation, float2 hexaOrigin, float2 hexaRadius, out float2 vertexIndex, out float vertexSector)
+int2 HexaCoord_ToHexaIndex(int3 hexaCoord)
 {
-    // HexaOrientation Constants for Pointy-topped.
-    float F0 = 1.7320508; // sqrt(3)
-    float F1 = 0.8660254; // sqrt(3)/2
-    float F3 = 1.5;       // 3/2
-    float B0 = 0.5773503; // sqrt(3)/3
-    float B1 = -0.3333333;// -1/3
-    float B3 = 0.6666667; // 2/3
+    int parity = hexaCoord.y & 1;
+    int c = hexaCoord.x + ((hexaCoord.y - parity) >> 1);
+    return int2(c, hexaCoord.y);
+}
+int3 HexaIndex_ToHexaCoord(int2 hexaIndex)
+{
+    int parity = hexaIndex.y & 1;
+    int a = hexaIndex.x - ((hexaIndex.y - parity) >> 1);
+    int b = hexaIndex.y;
+    return int3(a, b, -a - b);
+}
 
-    // Convert Unity Space to Screen Space.
-    float2 P = float2(worldLocation.x, -worldLocation.z) / hexaRadius;
+int3 HexaCoordF_Round(float3 hexaCoordF)
+{
+    float a = hexaCoordF.x;
+    float b = hexaCoordF.y;
+    float c = hexaCoordF.z;
 
-    // Screen to HexaCoordF.
-    float a = B0 * P.x + B1 * P.y;
-    float b = B3 * P.y;
-    float c = -a - b;
-
-    // Round HexaCoordF.
     int rA = round(a);
     int rB = round(b);
     int rC = round(c);
@@ -41,100 +42,51 @@ void GetNearestHexaVertexIndex_float(float3 worldLocation, float2 hexaOrigin, fl
         rB = -rA - rC;
     }
 
-    // HexaCoord to HexaIndex.
-    int parity = rB & 1;
-    int indexX = rA + ((rB - parity) >> 1); // Faster operation than divide by int 2.
-    int indexY = rB;
-
-    // Calculate the center location of the HexaCell in Unity Space.
-    float centerScreenX = hexaOrigin.x + (F0 * rA + F1 * rB) * hexaRadius.x;
-    float centerScreenY = hexaOrigin.y + (F3 * rB) * hexaRadius.y;
-
-    float centerWorldX = centerScreenX;
-    float centerWorldZ = -centerScreenY;
-
-    // Calculate direction vector from cell center to given Unity location.
-    float diffX = worldLocation.x - centerWorldX;
-    float diffZ = worldLocation.z - centerWorldZ;
-
-    // Calculate angle in radians.
-    // atan2(x, z) instead of atan2(y, x) maps 0 rad to +Z and increases CW.
-    float angle = atan2(diffX, diffZ);
-
-    // Vertices are exactly at 0, 60, 120 degrees. 
-    // We add 30 degrees (PI/6 = 0.52359877 rad) to shift the sector boundaries.
-    // So that the vertex itself sits in the middle of its corresponding Voronoi sector.
-    float shiftedAngle = angle + 0.52359877;
-
-    // Normalize angle to [0, 2PI)
-    if (shiftedAngle < 0.0)
-    {
-        shiftedAngle += 6.2831853;
-    }
-    shiftedAngle = fmod(shiftedAngle, 6.2831853);
-
-    // Divide by 60 degrees (PI/3 = 1.04719755 rad) to get Sector ID. (0 to 5)
-    int sector = floor(shiftedAngle / 1.04719755);
-    vertexSector = sector;
-
-    // Map Sector ID to HexaVertexIndex.
-    int baseX = indexX * 2 + parity;
-
-    // Mapping: D0=0, D60=1, D120=2, D180=3, D240=4, D300=5
-    int offsetX[6] = { 1, 2, 2, 1, 0, 0, };
-    int offsetY[6] = { 0, 0, 1, 1, 1, 0, };
-
-    vertexIndex.x = baseX + offsetX[sector];
-    vertexIndex.y = indexY + offsetY[sector];
+    return int3(rA, rB, rC);
 }
 
-void GetHexaVertexIndexWorldLocation_float(float2 hexaVertexIndex, float2 hexaOrigin, float2 hexaRadius, out float3 worldLocation)
+struct HexaOrientation
 {
-    int vertexX = (int)hexaVertexIndex.x;
-    int vertexY = (int)hexaVertexIndex.y;
+    float F0, F1, F2, F3;
+    float B0, B1, B2, B3;
 
-    // Determine D0 or D300 and HexaIndex. (cellX, cellY)
-    int parity = vertexY & 1;
-    int vx_minus_p = vertexX - parity;
+    float2 Origin, Radius;
+};
 
-    int rem = vx_minus_p & 1;
-    int cellX = vx_minus_p >> 1;
-    int cellY = vertexY;
+HexaOrientation HexaOrientation_Create(float2 hexaOrigin, float2 hexaRadius)
+{
+    HexaOrientation r = (HexaOrientation)0;
+    
+    r.F0 = 1.7320508; // sqrt(3)
+    r.F1 = 0.8660254; // sqrt(3)/2
+    r.F2 = 0.0;
+    r.F3 = 1.5;       // 3/2
+    r.B0 = 0.5773503; // sqrt(3)/3
+    r.B1 = -0.3333333;// -1/3
+    r.B2 = 0.0;
+    r.B3 = 0.6666667; // 2/3
 
-    // HexaIndex (cellX, cellY) -> HexaCoord (A, B)
-    int cellParity = cellY & 1;
-    int a = cellX - ((cellY - cellParity) >> 1); // Faster operation than divide by int 2.
-    int b = cellY;
+    r.Origin = hexaOrigin;
+    r.Radius = hexaRadius;
 
-    // Calculate Screen / Unity center coordinate of the cell.
-    float F0 = 1.7320508; // sqrt(3)
-    float F1 = 0.8660254; // sqrt(3)/2
-    float F3 = 1.5;       // 3/2
+    return r;
+}
 
-    float centerScreenX = hexaOrigin.x + (F0 * a + F1 * b) * hexaRadius.x;
-    float centerScreenY = hexaOrigin.y + (F3 * b) * hexaRadius.y;
+float3 HexaOrientation_ScreenToHexa(HexaOrientation o, float2 screenLocation)
+{
+    float2 pt = float2(
+        (screenLocation.x - o.Origin.x) / o.Radius.x,
+        (screenLocation.y - o.Origin.y) / o.Radius.y);
+    float a = o.B0 * pt.x + o.B1 * pt.y;
+    float b = o.B2 * pt.x + o.B3 * pt.y;
+    return float3(a, b, -a - b);
+}
 
-    float centerWorldX = centerScreenX;
-    float centerWorldZ = -centerScreenY;
-
-    // Add offset of D0 or D300 to cell center.
-    float offsetX = 0.0;
-    float offsetZ = 0.0;
-    if (rem == 1)
-    {
-        // Case D0 (12 o'clock, 0 degrees)
-        offsetX = 0.0;
-        offsetZ = 1.0 * hexaRadius.y;
-    }
-    else
-    {
-        // Case D300 (10 o'clock, 300 degrees)
-        // sin(300 deg) = -0.8660254, cos(300 deg) = 0.5
-        offsetX = -0.8660254 * hexaRadius.x;
-        offsetZ = 0.5 * hexaRadius.y;
-    }
-
-    worldLocation = float3(centerWorldX + offsetX, 0.0, centerWorldZ + offsetZ);
+float2 HexaOrientation_HexaToScreen(HexaOrientation o, float3 hexaCoord)
+{
+    float x = (o.F0 * hexaCoord.x + o.F1 * hexaCoord.y) * o.Radius.x;
+    float y = (o.F2 * hexaCoord.x + o.F3 * hexaCoord.y) * o.Radius.y;
+    return float2(x + o.Origin.x, y + o.Origin.y);
 }
 
 #endif
