@@ -88,7 +88,7 @@ void GetNearestHexaVertexIndex_float(float3 worldLocation, float2 hexaOrigin, fl
     vertexIndex.y = indexY + offsetY[sector];
 }
 
-void GetHexaVertexIndexWorldPosition_float(float2 hexaVertexIndex, float2 hexaOrigin, float2 hexaRadius, out float3 worldLocation)
+void GetHexaVertexIndexWorldLocation_float(float2 hexaVertexIndex, float2 hexaOrigin, float2 hexaRadius, out float3 worldLocation)
 {
     int vertexX = (int)hexaVertexIndex.x;
     int vertexY = (int)hexaVertexIndex.y;

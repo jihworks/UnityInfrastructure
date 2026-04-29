@@ -389,7 +389,7 @@
     "m_Group": {
         "m_Id": ""
     },
-    "m_Name": "GetHexaVertexIndexWorldPosition (Custom Function)",
+    "m_Name": "GetHexaVertexIndexWorldLocation (Custom Function)",
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
@@ -426,7 +426,7 @@
         "m_SerializableColors": []
     },
     "m_SourceType": 0,
-    "m_FunctionName": "GetHexaVertexIndexWorldPosition",
+    "m_FunctionName": "GetHexaVertexIndexWorldLocation",
     "m_FunctionSource": "3877579e276b1d04092ceb7e566eebcd",
     "m_FunctionSourceUsePragmas": true,
     "m_FunctionBody": "Enter function body here..."
