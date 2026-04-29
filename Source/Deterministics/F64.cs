@@ -67,7 +67,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         }
 
         /// <summary>
-        /// Probably need <see cref="FromLong(long)"/> instead of this.
+        /// Probably need <see cref="FromInt(int)"/> instead of this.
         /// </summary>
         /// <remarks>
         /// Do not use this if don't know exactly what it doing.
