@@ -144,19 +144,50 @@ namespace Jih.Unity.Infrastructure
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float Lerp(float p1, float p2, float alpha)
+        public static float Lerp(float start, float end, float alpha)
         {
-            return p1 + (p2 - p1) * alpha;
+            return start + (end - start) * alpha;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Lerp(double p1, double p2, double alpha)
+        public static double Lerp(double start, double end, double alpha)
         {
-            return p1 + (p2 - p1) * alpha;
+            return start + (end - start) * alpha;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static decimal Lerp(decimal p1, decimal p2, decimal alpha)
+        public static decimal Lerp(decimal start, decimal end, decimal alpha)
         {
-            return p1 + (p2 - p1) * alpha;
+            return start + (end - start) * alpha;
+        }
+
+        /// <returns>[0, 1]</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float InverseLerp(this float value, float start, float end)
+        {
+            if (start == end)
+            {
+                return 0f;
+            }
+            return Math.Clamp((value - start) / (end - start), 0f, 1f);
+        }
+        /// <inheritdoc cref="InverseLerp(float, float, float)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double InverseLerp(this double value, double start, double end)
+        {
+            if (start == end)
+            {
+                return 0d;
+            }
+            return Math.Clamp((value - start) / (end - start), 0d, 1d);
+        }
+        /// <inheritdoc cref="InverseLerp(float, float, float)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal InverseLerp(this decimal value, decimal start, decimal end)
+        {
+            if (start == end)
+            {
+                return 0m;
+            }
+            return Math.Clamp((value - start) / (end - start), 0m, 1m);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -194,27 +225,27 @@ namespace Jih.Unity.Infrastructure
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SafeDivide(this int left, int right, int fallback = 0)
         {
-            return 0 != right ? left / right : fallback;
+            return right != 0 ? left / right : fallback;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long SafeDivide(this long left, long right, long fallback = 0L)
         {
-            return 0L != right ? left / right : fallback;
+            return right != 0L ? left / right : fallback;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float SafeDivide(this float left, float right, float fallback = 0f)
         {
-            return 0f != right ? left / right : fallback;
+            return right != 0f ? left / right : fallback;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double SafeDivide(this double left, double right, double fallback = 0d)
         {
-            return 0d != right ? left / right : fallback;
+            return right != 0d ? left / right : fallback;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static decimal SafeDivide(this decimal left, decimal right, decimal fallback = 0m)
         {
-            return 0m != right ? left / right : fallback;
+            return right != 0m ? left / right : fallback;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

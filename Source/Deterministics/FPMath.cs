@@ -164,6 +164,17 @@ namespace Jih.Unity.Infrastructure.Deterministics
             return left + (right - left) * alpha;
         }
 
+        /// <inheritdoc cref="MathEx.InverseLerp(float, float, float)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static F64 InverseLerp(this F64 value, F64 start, F64 end)
+        {
+            if (start == end)
+            {
+                return F64.Zero;
+            }
+            return Clamp01((value - start) / (end - start));
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static F64 Sq(this F64 value)
         {
