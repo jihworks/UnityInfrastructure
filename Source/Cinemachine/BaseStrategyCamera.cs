@@ -33,51 +33,67 @@ namespace Jih.Unity.Infrastructure.Cinemachine
         [Header("Properties")]
         [Tooltip("Effects to Orbit, Zoom and Target Y.")]
         [SerializeField] float _cameraOffsetSmoothTime = 0.2f;
+        public float CameraOffsetSmoothTime => _cameraOffsetSmoothTime;
         [Tooltip("Effects to Movement.")]
         [SerializeField] float _movementLocationSmoothTime = 0.2f;
+        public float MovementLocationSmoothTime => _movementLocationSmoothTime;
 
         [Space(12f)]
         [Tooltip("Movement Speed by Camera Distance(Normalized Position)")]
         [SerializeField] AnimationCurve _movementSpeedCurve = new(new Keyframe(0f, 20f), new Keyframe(1f, 80f));
+        public AnimationCurveReadOnlyProxy MovementSpeedCurve => new(_movementSpeedCurve);
         [SerializeField] float _sprintScale = 2f;
+        public float SprintScale => _sprintScale;
 
         [Space(6f)]
         [Tooltip("Zoom Speed by Camera Distance(Normalized Position)")]
         [SerializeField] AnimationCurve _zoomSpeedCurve = new(new Keyframe(0f, 20f), new Keyframe(1f, 80f));
+        public AnimationCurveReadOnlyProxy ZoomSpeedCurve => new(_zoomSpeedCurve);
 
         [Space(12f)]
         [Tooltip("Degrees per second")]
         [SerializeField] float _cameraOrbitYawSpeed = 60f;
+        public float CameraOrbitYawSpeed => _cameraOrbitYawSpeed;
 
         [Space(6f)]
         [Tooltip("Camera Orbit Pitch by Camera Distance(Normalized Position)")]
         [SerializeField] AnimationCurve _cameraPitchCurve = new(new Keyframe(0f, 0f), new Keyframe(1f, 45f));
+        public AnimationCurveReadOnlyProxy CameraPitchCurve => new(_cameraPitchCurve);
 
         [Space(12f)]
         [Tooltip("Maximum Zoom in distance.")]
         [SerializeField] float _minCameraDistance = 30f;
+        public float MinCameraDistance => _minCameraDistance;
         [Tooltip("Maximum Zoom out distance.")]
         [SerializeField] float _maxCameraDistance = 200f;
+        public float MaxCameraDistance => _maxCameraDistance;
 
         [Space(6f)]
         [Tooltip("Camera Tracking Target's Y by Camera Distance(Normalized Position)")]
         [SerializeField] AnimationCurve _cameraTargetYCurve = new(new Keyframe(0f, 4f), new Keyframe(1f, 0f));
-        
+        public AnimationCurveReadOnlyProxy CameraTargetYCurve => new(_cameraTargetYCurve);
+
         [Header("Monitoring")]
         [Tooltip("Editing this value has no effect. Edit 'Movement Speed Curve'.")]
         [SerializeField] float _currentMovementSpeed = 80f;
+        public float CurrentMovementSpeed => _currentMovementSpeed;
         [Tooltip("Editing this value has no effect. Edit 'Zoom Speed Curve'.")]
         [SerializeField] float _currentZoomSpeed = 20f;
+        public float CurrentZoomSpeed => _currentZoomSpeed;
 
         [Space(12f)]
         [SerializeField] float _currentCameraDistance = 100f;
+        public float CurrentCameraDistance => _currentCameraDistance;
         [SerializeField] float _currentCameraOrbitYaw = 45f;
+        public float CurrentCameraOrbitYaw => _currentCameraOrbitYaw;
         [Tooltip("Editing this value has no effect. Edit 'Camera Pitch Curve'")]
         [SerializeField] float _currentCameraOrbitPitch = 45f;
+        public float CurrentCameraOrbitPitch => _currentCameraOrbitPitch;
 
         [Space(6f)]
         [Tooltip("Editing this value has no effect. Edit 'Camera Target Y Curve'.")]
         [SerializeField] float _currentTargetY = 0f;
+        public float CurrentTargetY => _currentTargetY;
 
         CinemachineCamera? _cinemachineCamera;
         public CinemachineCamera CinemachineCamera
