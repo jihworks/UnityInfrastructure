@@ -27,14 +27,18 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             Coord = coord;
         }
 
+        public HexaCoord GetNeighborCoord(HexaNeighborPosition position)
+        {
+            HexaCoord offset = position.GetOffset();
+            return Coord + offset;
+        }
         /// <remarks>
         /// <see cref="Map"/> required.
         /// </remarks>
         public HexaCell? GetNeighbor(HexaNeighborPosition position)
         {
             HexaMap map = CheckMap(nameof(GetNeighbor));
-            HexaCoord offset = position.GetOffset();
-            return map.GetCell(Coord + offset);
+            return map.GetCell(GetNeighborCoord(position));
         }
         /// <remarks>
         /// <see cref="Map"/> required.
@@ -67,14 +71,18 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             return result;
         }
 
+        public HexaCoord GetDiagonalCoord(HexaDiagonalPosition position)
+        {
+            HexaCoord offset = position.GetOffset();
+            return Coord + offset;
+        }
         /// <remarks>
         /// <see cref="Map"/> required.
         /// </remarks>
         public HexaCell? GetDiagonal(HexaDiagonalPosition position)
         {
             HexaMap map = CheckMap(nameof(GetDiagonal));
-            HexaCoord offset = position.GetOffset();
-            return map.GetCell(Coord + offset);
+            return map.GetCell(GetDiagonalCoord(position));
         }
         /// <remarks>
         /// <see cref="Map"/> required.
