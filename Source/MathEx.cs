@@ -118,6 +118,32 @@ namespace Jih.Unity.Infrastructure
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Clamp(this int value, int min, int max)
+        {
+            return Math.Clamp(value, min, max);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long Clamp(this long value, long min, long max)
+        {
+            return Math.Clamp(value, min, max);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Clamp(this float value, float min, float max)
+        {
+            return Math.Clamp(value, min, max);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Clamp(this double value, double min, double max)
+        {
+            return Math.Clamp(value, min, max);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static decimal Clamp(this decimal value, decimal min, decimal max)
+        {
+            return Math.Clamp(value, min, max);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clamp(ref int value, int min, int max)
         {
             value = Math.Clamp(value, min, max);
