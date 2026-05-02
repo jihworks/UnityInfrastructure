@@ -57,7 +57,7 @@ namespace Jih.Unity.Infrastructure
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Destroy<T>(ref T? obj) where T : Object
+        public static void Destroy(ref GameObject? obj)
         {
             if (obj == null)
             {
@@ -68,7 +68,39 @@ namespace Jih.Unity.Infrastructure
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DestroyAll<T>(List<T> collection) where T : Object
+        public static void DestroyAll(List<GameObject> collection)
+        {
+            for (int i = 0; i < collection.Count; i++)
+            {
+                GameObject obj = collection[i];
+                if (obj == null)
+                {
+                    continue;
+                }
+                Object.Destroy(obj);
+            }
+            collection.Clear();
+        }
+
+        /// <summary>
+        /// Destroys the given component's <b>GameObject</b>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Destroy<T>(ref T? obj) where T : Component
+        {
+            if (obj == null)
+            {
+                return;
+            }
+            Object.Destroy(obj.gameObject);
+            obj = null;
+        }
+
+        /// <summary>
+        /// Destroys all the given components' <b>GameObject</b>s.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void DestroyAll<T>(List<T> collection) where T : Component
         {
             for (int i = 0; i < collection.Count; i++)
             {
@@ -77,7 +109,7 @@ namespace Jih.Unity.Infrastructure
                 {
                     continue;
                 }
-                Object.Destroy(obj);
+                Object.Destroy(obj.gameObject);
             }
             collection.Clear();
         }
