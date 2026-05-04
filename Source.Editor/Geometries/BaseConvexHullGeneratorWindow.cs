@@ -16,19 +16,26 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
     public abstract class BaseConvexHullGeneratorWindow : EditorWindow
     {
         [SerializeField] List<Mesh?> _sourceMeshes = new();
+        [SerializeField] List<GameObject?> _sourceQuickAdds = new();
+        [SerializeField] List<GameObject?> _sourceGameObjects = new();
         SerializedObject? _serializedObject;
-        SerializedProperty? _sourceMeshesProperty;
+        SerializedProperty? _sourceMeshesProperty, _sourceQuickAddsProperty, _sourceGameObjectsProperty;
 
-        string _saveDirectory = "Assets";
-        string _fileNameFormat = "{0} ConvexHull";
+        string _meshesSaveDirectory = "Assets";
+        string _meshesFileNameFormat = "{0} ConvexHull";
 
-        bool _previewConvexHull = true;
-        GameObject? _previewRoot;
-        Material? _convexHullPreviewMaterial, _sourceMeshPreviewMaterial;
+        bool _meshesPreviewConvexHull = true;
+        GameObject? _meshesPreviewRoot;
 
-        readonly List<Stats> _stats = new();
-        bool _showStats = false;
+        readonly List<Stats> _meshesStats = new();
+        bool _meshesShowStats = false;
+
+        string _objectsSaveDirectory = "Assets";
+        string _objectsFileNameFormat = "{0} ConvexHull";
+
         Vector2 _scrollPosition;
+
+        Material? _convexHullPreviewMaterial, _sourceMeshPreviewMaterial;
 
         protected abstract void CreatePreviewMaterials(out Material convexHullPreviewMaterial, out Material sourceMeshPreviewMaterial);
         protected abstract void GenerateHull(Vector3[] points, out List<Vector3> hullVertices, out List<int> hullTriangles);
@@ -37,14 +44,16 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
         {
             _serializedObject = new SerializedObject(this);
             _sourceMeshesProperty = _serializedObject.FindProperty(nameof(_sourceMeshes));
+            _sourceQuickAddsProperty = _serializedObject.FindProperty(nameof(_sourceQuickAdds));
+            _sourceGameObjectsProperty = _serializedObject.FindProperty(nameof(_sourceGameObjects));
 
             CreatePreviewMaterials(out _convexHullPreviewMaterial, out _sourceMeshPreviewMaterial);
-            ResetStats();
+            Meshes_ResetStats();
         }
 
         protected virtual void OnDisable()
         {
-            DestroyPreview();
+            Meshes_DestroyPreview();
         }
 
         protected virtual void OnGUI()
@@ -52,12 +61,22 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             _serializedObject?.Update();
+
+            GUILayout.Label("From Meshes", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical("box");
+
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(_sourceMeshesProperty, new GUIContent("Source Meshes"), true);
             if (EditorGUI.EndChangeCheck())
             {
-                ResetStats();
-                DestroyPreview();
+                Meshes_ResetStats();
+                Meshes_DestroyPreview();
+            }
+            EditorGUILayout.Space();
+            EditorGUILayout.PropertyField(_sourceQuickAddsProperty, new GUIContent("Quick Adds"), true);
+            if (GUILayout.Button("Quick Add"))
+            {
+                Meshes_QuickAdd();
             }
             _serializedObject?.ApplyModifiedProperties();
 
@@ -65,57 +84,116 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Save Directory", GUILayout.Width(110));
-            _saveDirectory = EditorGUILayout.TextField(_saveDirectory, GUILayout.ExpandWidth(true));
+            _meshesSaveDirectory = EditorGUILayout.TextField(_meshesSaveDirectory, GUILayout.ExpandWidth(true));
             if (GUILayout.Button("Browse...", GUILayout.Width(80)))
             {
-                BrowseSaveDirectory();
+                Meshes_BrowseSaveDirectory();
             }
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("File Name Format", GUILayout.Width(110));
-            _fileNameFormat = EditorGUILayout.TextField(_fileNameFormat, GUILayout.ExpandWidth(true));
+            _meshesFileNameFormat = EditorGUILayout.TextField(_meshesFileNameFormat, GUILayout.ExpandWidth(true));
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.HelpBox("'{0}' will be replaced by source mesh name.\nExample: '{0} ConvexHull' -> 'SourceMeshName ConvexHull.asset'", MessageType.Info);
 
             EditorGUILayout.Space();
-            _previewConvexHull = EditorGUILayout.Toggle("Preview Convex Hull", _previewConvexHull);
+            _meshesPreviewConvexHull = EditorGUILayout.Toggle("Preview Convex Hull", _meshesPreviewConvexHull);
 
             EditorGUILayout.Space();
             bool hasValidMesh = _sourceMeshes.Exists(m => m != null);
             EditorGUI.BeginDisabledGroup(!hasValidMesh);
-
             if (GUILayout.Button("Save Convex Hulls"))
             {
-                SaveConvexHulls();
+                Meshes_SaveConvexHulls();
             }
-
             EditorGUI.EndDisabledGroup();
 
-            if (hasValidMesh && _previewConvexHull)
+            if (hasValidMesh && _meshesPreviewConvexHull)
             {
                 if (GUILayout.Button("Update Preview"))
                 {
-                    UpdatePreview();
+                    Meshes_UpdatePreview();
                 }
             }
 
-            if (_previewRoot != null)
+            if (_meshesPreviewRoot != null)
             {
                 if (GUILayout.Button("Clear Preview"))
                 {
-                    DestroyPreview();
+                    Meshes_DestroyPreview();
                 }
             }
 
-            DrawEfficiencyStatsList();
+            MeshesDrawEfficiencyStatsList();
+
+            EditorGUILayout.EndVertical();
+
+            GUILayout.Label("From Objects", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical("box");
+
+            EditorGUILayout.PropertyField(_sourceGameObjectsProperty, new GUIContent("Source Objects"), true);
+            _serializedObject?.ApplyModifiedProperties();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Save Directory", GUILayout.Width(110));
+            _objectsSaveDirectory = EditorGUILayout.TextField(_objectsSaveDirectory, GUILayout.ExpandWidth(true));
+            if (GUILayout.Button("Browse...", GUILayout.Width(80)))
+            {
+                Objects_BrowseSaveDirectory();
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("File Name Format", GUILayout.Width(110));
+            _objectsFileNameFormat = EditorGUILayout.TextField(_objectsFileNameFormat, GUILayout.ExpandWidth(true));
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.HelpBox("'{0}' will be replaced by source mesh name.\nExample: '{0} ConvexHull' -> 'SourceMeshName ConvexHull.asset'", MessageType.Info);
+
+            EditorGUILayout.Space();
+            bool hasValidObject = _sourceGameObjects.Exists(m => m != null);
+            EditorGUI.BeginDisabledGroup(!hasValidObject);
+            if (GUILayout.Button("Save Convex Hulls"))
+            {
+                Objects_SaveConvexHulls();
+            }
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndScrollView();
         }
 
-        void DrawEfficiencyStatsList()
+        void Meshes_QuickAdd()
         {
-            if (!_showStats || _stats.Count == 0)
+            List<Mesh?> result = new(_sourceMeshes);
+
+            foreach (var go in _sourceQuickAdds)
+            {
+                if (go == null)
+                {
+                    continue;
+                }
+
+                foreach (var childTransform in go.transform.EnumerateChildrenTree(true))
+                {
+                    MeshFilter[] meshFilters = childTransform.gameObject.GetComponents<MeshFilter>();
+                    foreach (var meshFilter in meshFilters)
+                    {
+                        if (meshFilter.sharedMesh != null && !result.Contains(meshFilter.sharedMesh))
+                        {
+                            result.Add(meshFilter.sharedMesh);
+                        }
+                    }
+                }
+            }
+
+            _sourceMeshes = result;
+        }
+
+        void MeshesDrawEfficiencyStatsList()
+        {
+            if (!_meshesShowStats || _meshesStats.Count == 0)
             {
                 return;
             }
@@ -123,7 +201,7 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Efficiency Statistics", EditorStyles.boldLabel);
 
-            foreach (var stats in _stats)
+            foreach (var stats in _meshesStats)
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
@@ -159,9 +237,9 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
             }
         }
 
-        void BrowseSaveDirectory()
+        void Meshes_BrowseSaveDirectory()
         {
-            string path = EditorUtility.OpenFolderPanel("Select Save Directory", _saveDirectory, "");
+            string path = EditorUtility.OpenFolderPanel("Select Save Directory", _meshesSaveDirectory, "");
             if (string.IsNullOrEmpty(path))
             {
                 return;
@@ -173,17 +251,33 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
                 return;
             }
 
-            _saveDirectory = "Assets" + path[Application.dataPath.Length..];
+            _meshesSaveDirectory = "Assets" + path[Application.dataPath.Length..];
         }
-
-        void SaveConvexHulls()
+        void Objects_BrowseSaveDirectory()
         {
-            if (!Directory.Exists(_saveDirectory))
+            string path = EditorUtility.OpenFolderPanel("Select Save Directory", _objectsSaveDirectory, "");
+            if (string.IsNullOrEmpty(path))
             {
-                Directory.CreateDirectory(_saveDirectory);
+                return;
             }
 
-            ResetStats();
+            if (!path.StartsWith(Application.dataPath))
+            {
+                Debug.LogWarning("Save directory must be inside the project's Assets folder.");
+                return;
+            }
+
+            _objectsSaveDirectory = "Assets" + path[Application.dataPath.Length..];
+        }
+
+        void Meshes_SaveConvexHulls()
+        {
+            if (!Directory.Exists(_meshesSaveDirectory))
+            {
+                Directory.CreateDirectory(_meshesSaveDirectory);
+            }
+
+            Meshes_ResetStats();
 
             for (int i = 0; i < _sourceMeshes.Count; i++)
             {
@@ -197,12 +291,12 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
 
                 GenerateHull(mesh.vertices, out List<Vector3> hullVertices, out List<int> hullTriangles);
 
-                _stats.Add(CreateStats(mesh, hullVertices, hullTriangles));
+                _meshesStats.Add(CreateStats(mesh, hullVertices, hullTriangles));
 
                 SerializableMesh serializableMesh = CreateInstance<SerializableMesh>();
                 SetSerializableMeshData(serializableMesh, hullVertices, hullTriangles);
 
-                string savePath = Path.Combine(_saveDirectory, string.Format(_fileNameFormat, mesh.name) + ".asset").Replace("\\", "/");
+                string savePath = Path.Combine(_meshesSaveDirectory, string.Format(_meshesFileNameFormat, mesh.name) + ".asset").Replace("\\", "/");
                 AssetDatabase.CreateAsset(serializableMesh, savePath);
 
                 Debug.Log("Saved: " + savePath);
@@ -210,12 +304,61 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
 
             EditorUtility.ClearProgressBar();
             AssetDatabase.SaveAssets();
-            _showStats = true;
+            _meshesShowStats = true;
 
-            if (_previewConvexHull)
+            if (_meshesPreviewConvexHull)
             {
-                UpdatePreview();
+                Meshes_UpdatePreview();
             }
+        }
+        void Objects_SaveConvexHulls()
+        {
+            if (!Directory.Exists(_objectsSaveDirectory))
+            {
+                Directory.CreateDirectory(_objectsSaveDirectory);
+            }
+
+            for (int i = 0; i < _sourceGameObjects.Count; i++)
+            {
+                GameObject? go = _sourceGameObjects[i];
+                if (go == null)
+                {
+                    continue;
+                }
+
+                EditorUtility.DisplayProgressBar("Generating", $"Processing {go.name}", (float)i / _sourceGameObjects.Count);
+
+                List<Vector3> allVertices = new();
+                foreach (var childTransform in go.transform.EnumerateChildrenTree(true))
+                {
+                    MeshFilter[] meshFilters = childTransform.gameObject.GetComponents<MeshFilter>();
+                    foreach (var meshFilter in meshFilters)
+                    {
+                        if (meshFilter.sharedMesh == null)
+                        {
+                            continue;
+                        }
+                        Vector3[] vertices = meshFilter.sharedMesh.vertices;
+                        Matrix4x4 localToWorld = meshFilter.transform.localToWorldMatrix;
+                        foreach (var vertex in vertices)
+                        {
+                            allVertices.Add(localToWorld.MultiplyPoint3x4(vertex));
+                        }
+                    }
+                }
+                GenerateHull(allVertices.ToArray(), out List<Vector3> hullVertices, out List<int> hullTriangles);
+
+                SerializableMesh serializableMesh = CreateInstance<SerializableMesh>();
+                SetSerializableMeshData(serializableMesh, hullVertices, hullTriangles);
+
+                string savePath = Path.Combine(_objectsSaveDirectory, string.Format(_objectsFileNameFormat, go.name) + ".asset").Replace("\\", "/");
+                AssetDatabase.CreateAsset(serializableMesh, savePath);
+
+                Debug.Log("Saved: " + savePath);
+            }
+
+            EditorUtility.ClearProgressBar();
+            AssetDatabase.SaveAssets();
         }
 
         static Stats CreateStats(Mesh source, IReadOnlyList<Vector3> hullVertices, IReadOnlyList<int> hullTriangles)
@@ -230,17 +373,17 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
                 100f * (1f - (float)hullT / originalT));
         }
 
-        void UpdatePreview()
+        void Meshes_UpdatePreview()
         {
-            DestroyPreview();
-            ResetStats();
+            Meshes_DestroyPreview();
+            Meshes_ResetStats();
 
             if (_sourceMeshes.Count <= 0)
             {
                 return;
             }
 
-            _previewRoot = new GameObject("ConvexHull_Preview_Root") { hideFlags = HideFlags.DontSave, };
+            _meshesPreviewRoot = new GameObject("ConvexHull_Preview_Root") { hideFlags = HideFlags.DontSave, };
 
             foreach (var mesh in _sourceMeshes)
             {
@@ -250,7 +393,7 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
                 }
 
                 GenerateHull(mesh.vertices, out List<Vector3> hullVertices, out List<int> hullTriangles);
-                _stats.Add(CreateStats(mesh, hullVertices, hullTriangles));
+                _meshesStats.Add(CreateStats(mesh, hullVertices, hullTriangles));
 
                 string previewName = $"Preview_{mesh.name}";
 
@@ -261,7 +404,7 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
 
                 {
                     GameObject gameObject = new(previewName);
-                    gameObject.transform.SetParent(_previewRoot.transform, false);
+                    gameObject.transform.SetParent(_meshesPreviewRoot.transform, false);
 
                     MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
                     meshFilter.sharedMesh = previewMesh;
@@ -271,7 +414,7 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
                 }
                 {
                     GameObject gameObject = new($"Source_{mesh.name}");
-                    gameObject.transform.SetParent(_previewRoot.transform, false);
+                    gameObject.transform.SetParent(_meshesPreviewRoot.transform, false);
 
                     MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
                     meshFilter.sharedMesh = mesh;
@@ -281,7 +424,7 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
                 }
             }
 
-            _showStats = true;
+            _meshesShowStats = true;
             if (SceneView.lastActiveSceneView != null)
             {
                 SceneView.lastActiveSceneView.Repaint();
@@ -313,18 +456,18 @@ namespace Jih.Unity.Infrastructure.Editor.Geometries
             return Color.red;
         }
 
-        void ResetStats()
+        void Meshes_ResetStats()
         {
-            _stats.Clear();
-            _showStats = false;
+            _meshesStats.Clear();
+            _meshesShowStats = false;
         }
 
-        void DestroyPreview()
+        void Meshes_DestroyPreview()
         {
-            if (_previewRoot != null)
+            if (_meshesPreviewRoot != null)
             {
-                DestroyImmediate(_previewRoot);
-                _previewRoot = null;
+                DestroyImmediate(_meshesPreviewRoot);
+                _meshesPreviewRoot = null;
             }
         }
 
