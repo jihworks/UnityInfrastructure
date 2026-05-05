@@ -51,6 +51,13 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
             }
         }
 
+        public void Append(EmbeddableMesh mesh)
+        {
+            for (int s = 0; s < mesh.SubMeshes.Count; s++)
+            {
+                Append(mesh.Vertices, mesh.SubMeshes[s].Indices);
+            }
+        }
         public void Append(SerializableMesh mesh)
         {
             for (int s = 0; s < mesh.SubMeshes.Count; s++)
