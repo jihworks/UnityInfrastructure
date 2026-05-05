@@ -92,6 +92,11 @@ namespace Jih.Unity.Infrastructure.Json
                 goto SKIP;
             }
 
+            if (type.IsAbstract || type.IsInterface)
+            {
+                goto SKIP;
+            }
+
             if (type.IsValueType)
             {
                 CheckType(type);
