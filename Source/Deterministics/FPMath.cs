@@ -44,6 +44,72 @@ namespace Jih.Unity.Infrastructure.Deterministics
             return F64.FromRaw((long)res);
         }
 
+        /// <summary>
+        /// O(1) deterministic binomial distribution generating function.
+        /// </summary>
+        /// <param name="n">Total number of trials.</param>
+        /// <param name="p">Probability of success. [0, 1]</param>
+        /// <returns>Number of successes.</returns>
+        /// <remarks>
+        /// This function will select manual loop or actual binomial distribution algorithm automately.<br/>
+        /// Because too small <paramref name="n"/> or <paramref name="p"/> will cause non-negligible error.<br/>
+        /// Therefore, the number of random numbers consumed from <paramref name="random"/> may vary depending on the given arguments.
+        /// </remarks>
+        public static int GetBinomialApprox(IRandomF64 random, int n, F64 p)
+        {
+            if (n <= 0 || p <= F64.Zero)
+            {
+                return 0;
+            }
+            if (p >= F64.One)
+            {
+                return n;
+            }
+
+            F64 fn = F64.FromInt(n);
+            F64 mean = fn * p;                     // Mean (μ)
+            F64 variance = mean * (F64.One - p);   // Variance (σ²)
+
+            // If the variance is too small (less than 5) or N is less than 24:
+            // Since the accuracy of the normal approximation is low, fallback to a deterministic O(N) loop.
+            // If N is less than 24, an O(N) loop is actually lighter than the O(1) operation of adding 12 random numbers and calculating Sqrt.
+            if (variance < F64.FromInt(5) || n < 24)
+            {
+                int successes = 0;
+                for (int i = 0; i < n; i++)
+                {
+                    if (random.NextF64() < p)
+                    {
+                        successes++;
+                    }
+                }
+                return successes;
+            }
+
+            // Irwin-Hall normal approximation.
+            F64 sum = F64.Zero;
+
+            // Add 12 random numbers.
+            for (int i = 0; i < 12; i++)
+            {
+                sum += random.NextF64();
+            }
+
+            // Standard normal distribution Z approx.
+            F64 z = sum - F64.FromInt(6);
+
+            // Calculate standard deviation.
+            F64 stdDev = variance.Sqrt();
+
+            // Transform to target normal distribution: X = μ + Z * σ
+            F64 x = mean + (z * stdDev);
+
+            // Add 0.5 for continuity correction and round down to the nearest integer.
+            int result = (int)(x + F64.Half);
+
+            return result.Clamp(0, n);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static F64 Min(F64 left, F64 right)
         {
