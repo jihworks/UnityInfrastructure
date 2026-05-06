@@ -6,11 +6,11 @@
 #nullable enable
 
 using System;
-using UnityEngine;
+using System.Numerics;
 
 namespace Jih.Unity.Infrastructure.Deterministics
 {
-    public struct Vector2F64 : IEquatable<Vector2F64>
+    public partial struct Vector2F64 : IEquatable<Vector2F64>
     {
         public static Vector2F64 Add(in Vector2F64 left, in Vector2F64 right)
         {
@@ -157,7 +157,7 @@ namespace Jih.Unity.Infrastructure.Deterministics
         /// </remarks>
         public static explicit operator Vector2F64(Vector2 vector)
         {
-            return new Vector2F64((F64)vector.x, (F64)vector.y);
+            return new Vector2F64((F64)vector.X, (F64)vector.Y);
         }
         /// <remarks>
         /// <b>NOT</b> deterministic-safe.

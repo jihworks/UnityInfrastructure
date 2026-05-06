@@ -12,7 +12,6 @@ using System.Buffers.Binary;
 namespace Jih.Unity.Infrastructure
 {
     /// <seealso cref="SystemRandom"/>
-    /// <seealso cref="UnityRandom"/>
     /// <seealso cref="RandomStream"/>
     public interface IRandomInt32
     {
@@ -91,14 +90,6 @@ namespace Jih.Unity.Infrastructure
             NextBytes(buffer);
             ulong v = BinaryPrimitives.ReadUInt64LittleEndian(buffer);
             return RandomEx.GetDouble01(v);
-        }
-    }
-
-    public class UnityRandom : IRandomInt32
-    {
-        public int NextInt32(int minInclusive, int maxExclusive)
-        {
-            return UnityEngine.Random.Range(minInclusive, maxExclusive);
         }
     }
 }
