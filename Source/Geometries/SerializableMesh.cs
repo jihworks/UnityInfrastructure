@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Jih.Unity.Infrastructure.Geometries
 {
-    public class SerializableMesh : ScriptableObject
+    public class SerializableMesh : ScriptableObject, ISerializableMesh
     {
         [SerializeField] List<Vector3> _vertices = new();
         public List<Vector3> Vertices => _vertices;
