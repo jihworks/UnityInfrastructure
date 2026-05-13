@@ -14,8 +14,8 @@ namespace Jih.Unity.Infrastructure.Runtime
         public int ListCapacity { get; set; }
 
         /// <param name="listCapacity">Initial capacity of the newly created <see cref="List{T}"/>s.</param>
-        public ListPool(int listCapacity = 8, int initialCollectionCapacity = DefaultInitialCollectionCapacity, int initialPoolCapacity = DefaultInitialPoolCapacity, bool isThreadSafe = DefaultIsThreadSafe)
-            : base(initialCollectionCapacity, initialPoolCapacity, isThreadSafe)
+        public ListPool(int listCapacity = 8, int initialCollectionCapacity = DefaultInitialCollectionCapacity, bool isThreadSafe = DefaultIsThreadSafe)
+            : base(initialCollectionCapacity, isThreadSafe)
         {
             ListCapacity = listCapacity;
         }
@@ -34,6 +34,10 @@ namespace Jih.Unity.Infrastructure.Runtime
         {
             obj.Clear();
         }
+
+        protected override void Destroy(List<T> obj)
+        {
+        }
     }
 
     public class DictionaryPool<TKey, TValue> : BaseObjectPool<Dictionary<TKey, TValue>>
@@ -41,8 +45,8 @@ namespace Jih.Unity.Infrastructure.Runtime
         public int DictionaryCapacity { get; set; }
 
         /// <param name="dictionaryCapacity">Initial capacity of the newly created <see cref="Dictionary{TKey, TValue}"/>s.</param>
-        public DictionaryPool(int dictionaryCapacity = 8, int initialCollectionCapacity = DefaultInitialCollectionCapacity, int initialPoolCapacity = DefaultInitialPoolCapacity, bool isThreadSafe = DefaultIsThreadSafe)
-            : base(initialCollectionCapacity, initialPoolCapacity, isThreadSafe)
+        public DictionaryPool(int dictionaryCapacity = 8, int initialCollectionCapacity = DefaultInitialCollectionCapacity, bool isThreadSafe = DefaultIsThreadSafe)
+            : base(initialCollectionCapacity, isThreadSafe)
         {
             DictionaryCapacity = dictionaryCapacity;
         }
@@ -61,6 +65,10 @@ namespace Jih.Unity.Infrastructure.Runtime
         {
             obj.Clear();
         }
+
+        protected override void Destroy(Dictionary<TKey, TValue> obj)
+        {
+        }
     }
 
     public class HashSetPool<T> : BaseObjectPool<HashSet<T>>
@@ -68,8 +76,8 @@ namespace Jih.Unity.Infrastructure.Runtime
         public int HashSetCapacity { get; set; }
 
         /// <param name="hashSetCapacity">Initial capacity of the newly created <see cref="HashSet{T}"/>s.</param>
-        public HashSetPool(int hashSetCapacity = 8, int initialCollectionCapacity = DefaultInitialCollectionCapacity, int initialPoolCapacity = DefaultInitialPoolCapacity, bool isThreadSafe = DefaultIsThreadSafe)
-            : base(initialCollectionCapacity, initialPoolCapacity, isThreadSafe)
+        public HashSetPool(int hashSetCapacity = 8, int initialCollectionCapacity = DefaultInitialCollectionCapacity, bool isThreadSafe = DefaultIsThreadSafe)
+            : base(initialCollectionCapacity, isThreadSafe)
         {
             HashSetCapacity = hashSetCapacity;
         }
@@ -87,6 +95,10 @@ namespace Jih.Unity.Infrastructure.Runtime
         protected override void Deactivate(HashSet<T> obj)
         {
             obj.Clear();
+        }
+
+        protected override void Destroy(HashSet<T> obj)
+        {
         }
     }
 }

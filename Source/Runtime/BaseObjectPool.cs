@@ -8,6 +8,7 @@
 using Jih.Unity.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Jih.Unity.Infrastructure.Runtime
 {
@@ -18,40 +19,30 @@ namespace Jih.Unity.Infrastructure.Runtime
     public abstract class BaseObjectPool<T> where T : class
     {
         protected const int DefaultInitialCollectionCapacity = 8;
-        protected const int DefaultInitialPoolCapacity = 0;
         protected const bool DefaultIsThreadSafe = false;
 
-        private readonly Stack<T> pool;
-        private readonly HashSet<T> poolMap;
+        readonly Stack<T> _pool;
+        readonly HashSet<T> _poolMap;
 
-        private readonly object? lockObject;
-        public bool IsThreadSafe => lockObject is not null;
+        readonly object? _lock;
+        public bool IsThreadSafe => _lock is not null;
 
         /// <summary>
         /// Objects count in the pool.
         /// </summary>
-        public int Count => pool.Count;
+        public int Count => _pool.Count;
 
         /// <param name="initialCollectionCapacity">Initial internal management collections capacity.</param>
-        /// <param name="initialPoolCapacity">Initial pool object count.</param>
         /// <param name="isThreadSafe">Whether thread-safe or not. If <c>true</c>, will use <c>lock</c> to achieve thread-safe. Pass <c>false</c> to gain performance if thread-safe is not essential.</param>
-        protected BaseObjectPool(int initialCollectionCapacity, int initialPoolCapacity, bool isThreadSafe)
+        protected BaseObjectPool(int initialCollectionCapacity, bool isThreadSafe)
         {
             if (isThreadSafe)
             {
-                lockObject = new object();
+                _lock = new object();
             }
 
-            pool = new Stack<T>(initialCollectionCapacity);
-            poolMap = new HashSet<T>(initialCollectionCapacity, ReferenceEqualityComparer<T>.Instance);
-
-            // Create by initial capacity
-            for (int i = 0; i < initialPoolCapacity; i++)
-            {
-                T item = Create();
-                pool.Push(item);
-                poolMap.Add(item);
-            }
+            _pool = new Stack<T>(initialCollectionCapacity);
+            _poolMap = new HashSet<T>(initialCollectionCapacity, ReferenceEqualityComparer<T>.Instance);
         }
 
         /// <summary>
@@ -61,29 +52,30 @@ namespace Jih.Unity.Infrastructure.Runtime
         {
             T item;
 
-            if (lockObject is not null)
+            if (_lock is not null)
             {
-                lock (lockObject)
+                lock (_lock)
                 {
-                    item = GetInternal();
+                    item = Get_Impl();
                 }
             }
             else
             {
-                item = GetInternal();
+                item = Get_Impl();
             }
 
             return item;
         }
 
-        private T GetInternal()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        T Get_Impl()
         {
             T item;
 
-            if (pool.Count > 0)
+            if (_pool.Count > 0)
             {
-                item = pool.Pop();
-                poolMap.Remove(item);
+                item = _pool.Pop();
+                _poolMap.Remove(item);
             }
             else
             {
@@ -106,23 +98,24 @@ namespace Jih.Unity.Infrastructure.Runtime
                 throw new ArgumentNullException(nameof(item));
             }
 
-            if (lockObject is not null)
+            if (_lock is not null)
             {
-                lock (lockObject)
+                lock (_lock)
                 {
-                    ReleaseInternal(item);
+                    Release_Impl(item);
                 }
             }
             else
             {
-                ReleaseInternal(item);
+                Release_Impl(item);
             }
         }
 
-        private void ReleaseInternal(T item)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void Release_Impl(T item)
         {
             // Atomic check & add to prevent duplicates in poolMap
-            if (!poolMap.Add(item))
+            if (!_poolMap.Add(item))
             {
                 // Already released item.
                 return;
@@ -133,12 +126,12 @@ namespace Jih.Unity.Infrastructure.Runtime
                 // Call Deactivate before adding to pool.
                 Deactivate(item);
                 // Add to pool if Deactivate succeeded.
-                pool.Push(item);
+                _pool.Push(item);
             }
             catch
             {
                 // If Deactivate throws an exception, remove the item from poolMap.
-                poolMap.Remove(item);
+                _poolMap.Remove(item);
                 throw; // Throw the exception to the caller.
             }
         }
@@ -153,15 +146,15 @@ namespace Jih.Unity.Infrastructure.Runtime
                 throw new ArgumentNullException(nameof(items));
             }
 
-            if (lockObject is not null)
+            if (_lock is not null)
             {
-                lock (lockObject)
+                lock (_lock)
                 {
                     foreach (var item in items)
                     {
                         if (item is not null)
                         {
-                            ReleaseInternal(item);
+                            Release_Impl(item);
                         }
                     }
                 }
@@ -172,7 +165,7 @@ namespace Jih.Unity.Infrastructure.Runtime
                 {
                     if (item is not null)
                     {
-                        ReleaseInternal(item);
+                        Release_Impl(item);
                     }
                 }
             }
@@ -183,27 +176,29 @@ namespace Jih.Unity.Infrastructure.Runtime
         /// </summary>
         public void Clear()
         {
-            if (lockObject is not null)
+            if (_lock is not null)
             {
-                lock (lockObject)
+                lock (_lock)
                 {
-                    ClearInternal();
+                    Clear_Impl();
                 }
             }
             else
             {
-                ClearInternal();
+                Clear_Impl();
             }
         }
 
-        private void ClearInternal()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void Clear_Impl()
         {
-            while (pool.Count > 0)
+            while (_pool.Count > 0)
             {
-                T item = pool.Pop();
-                poolMap.Remove(item);
+                T item = _pool.Pop();
+                _poolMap.Remove(item);
 
                 Deactivate(item);
+                Destroy(item);
             }
         }
 
@@ -218,27 +213,29 @@ namespace Jih.Unity.Infrastructure.Runtime
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
 
-            if (lockObject is not null)
+            if (_lock is not null)
             {
-                lock (lockObject)
+                lock (_lock)
                 {
-                    TrimInternal(count);
+                    Trim_Impl(count);
                 }
             }
             else
             {
-                TrimInternal(count);
+                Trim_Impl(count);
             }
         }
 
-        private void TrimInternal(int count)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void Trim_Impl(int count)
         {
-            while (pool.Count > count)
+            while (_pool.Count > count)
             {
-                T item = pool.Pop();
-                poolMap.Remove(item);
+                T item = _pool.Pop();
+                _poolMap.Remove(item);
 
                 Deactivate(item);
+                Destroy(item);
             }
         }
 
@@ -253,32 +250,34 @@ namespace Jih.Unity.Infrastructure.Runtime
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
 
-            if (lockObject is not null)
+            if (_lock is not null)
             {
-                lock (lockObject)
+                lock (_lock)
                 {
-                    EnsureCapacityInternal(count);
+                    EnsureCapacity_Impl(count);
                 }
             }
             else
             {
-                EnsureCapacityInternal(count);
+                EnsureCapacity_Impl(count);
             }
         }
 
-        private void EnsureCapacityInternal(int count)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void EnsureCapacity_Impl(int count)
         {
-            for (int i = pool.Count; i < count; i++)
+            for (int i = _pool.Count; i < count; i++)
             {
                 T item = Create();
-                pool.Push(item);
-                poolMap.Add(item);
+                _pool.Push(item);
+                _poolMap.Add(item);
             }
         }
 
         /// <summary>
         /// Called when an object is created by the pool. The object will be added to the pool after this method returns.
         /// </summary>
+        /// <returns>The object must be in deactivated state.</returns>
         protected abstract T Create();
         /// <summary>
         /// Called when an object is taken from the pool. The object will be removed from the pool before this method returns.
@@ -288,5 +287,12 @@ namespace Jih.Unity.Infrastructure.Runtime
         /// Called when an object is returned to the pool. The object will be added to the pool after this method returns.
         /// </summary>
         protected abstract void Deactivate(T obj);
+        /// <summary>
+        /// Called when an object is removed from the pool forever because of clear or trim the pool.
+        /// </summary>
+        /// <remarks>
+        /// The object already called deactivate.
+        /// </remarks>
+        protected abstract void Destroy(T obj);
     }
 }

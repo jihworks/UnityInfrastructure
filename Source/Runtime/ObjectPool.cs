@@ -13,8 +13,8 @@ namespace Jih.Unity.Infrastructure.Runtime
     /// </summary>
     public class ObjectPool<T> : BaseObjectPool<T> where T : class, new()
     {
-        public ObjectPool(int initialCollectionCapacity = DefaultInitialCollectionCapacity, int initialPoolCapacity = DefaultInitialPoolCapacity, bool isThreadSafe = DefaultIsThreadSafe)
-            : base(initialCollectionCapacity, initialPoolCapacity, isThreadSafe)
+        public ObjectPool(int initialCollectionCapacity = DefaultInitialCollectionCapacity, bool isThreadSafe = DefaultIsThreadSafe)
+            : base(initialCollectionCapacity, isThreadSafe)
         {
         }
 
@@ -28,6 +28,10 @@ namespace Jih.Unity.Infrastructure.Runtime
         }
 
         protected override void Deactivate(T obj)
+        {
+        }
+
+        protected override void Destroy(T obj)
         {
         }
     }
