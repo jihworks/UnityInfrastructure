@@ -11,36 +11,8 @@ using System.Collections.Generic;
 
 namespace Jih.Unity.Infrastructure.Data
 {
-    public class LinkableProperty<T> : BaseThreadCriticalObject, IObservable<T>
+    public class LinkableEvent<T> : BaseThreadCriticalObject, IObservable<T>, IObserver<T>
     {
-        T _value = default!;
-        public T Value
-        {
-            get
-            {
-                CheckThread();
-                return _value;
-            }
-            set
-            {
-                CheckThread();
-
-                if (EqualityComparer<T>.Default.Equals(value!, _value!))
-                {
-                    return;
-                }
-                _value = value;
-
-                _invokeBuffer.Clear();
-                _invokeBuffer.AddRange(_observers);
-                for (int i = 0; i < _invokeBuffer.Count; i++)
-                {
-                    _invokeBuffer[i].OnNext(value!);
-                }
-                _invokeBuffer.Clear();
-            }
-        }
-
         readonly List<IObserver<T>> _observers = new();
         readonly List<IObserver<T>> _invokeBuffer = new();
 
@@ -49,11 +21,31 @@ namespace Jih.Unity.Infrastructure.Data
             CheckThread();
 
             _observers.Add(observer);
-            observer.OnNext(_value);
+            // Do not call OnNext() this time.
 
             Subscription subscription = _subscriptionPool.Get();
             subscription.Set(this, observer);
             return subscription;
+        }
+
+        public void OnNext(T value)
+        {
+            CheckThread();
+
+            _invokeBuffer.Clear();
+            _invokeBuffer.AddRange(_observers);
+            for (int i = 0; i < _invokeBuffer.Count; i++)
+            {
+                _invokeBuffer[i].OnNext(value);
+            }
+            _invokeBuffer.Clear();
+        }
+
+        void IObserver<T>.OnCompleted()
+        {
+        }
+        void IObserver<T>.OnError(Exception error)
+        {
         }
 
         void Remove(IObserver<T> observer)
@@ -65,10 +57,10 @@ namespace Jih.Unity.Infrastructure.Data
 
         class Subscription : IDisposable
         {
-            public LinkableProperty<T> Owner { get; private set; } = null!;
+            public LinkableEvent<T> Owner { get; private set; } = null!;
             public IObserver<T> Observer { get; private set; } = null!;
 
-            internal void Set(LinkableProperty<T> owner, IObserver<T> observer)
+            internal void Set(LinkableEvent<T> owner, IObserver<T> observer)
             {
                 Owner = owner;
                 Observer = observer;

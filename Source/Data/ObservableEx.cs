@@ -6,6 +6,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 
 namespace Jih.Unity.Infrastructure.Data
 {
@@ -19,10 +20,23 @@ namespace Jih.Unity.Infrastructure.Data
         {
             return new SelectObservable<TSource, TResult>(source, predicate);
         }
+        public static IObservable<Empty> SelectEmpty<TSource>(this IObservable<TSource> source)
+        {
+            return new SelectObservable<TSource, Empty>(source, _ => Data.Empty.Default);
+        }
 
         public static IObservable<T> Flatten<T>(this IObservable<IObservable<T>> source)
         {
             return new FlattenObservable<T>(source);
+        }
+
+        public static IObservable<T> Merge<T>(params IObservable<T>[] sources)
+        {
+            return new MergeObservable<T>(sources);
+        }
+        public static IObservable<T> Merge<T>(IReadOnlyList<IObservable<T>> sources)
+        {
+            return new MergeObservable<T>(sources);
         }
 
         public static IDisposable Link<T>(this IObservable<T> source, Action<T> action)
@@ -33,136 +47,6 @@ namespace Jih.Unity.Infrastructure.Data
         public static IObservable<T> Empty<T>()
         {
             return EmptyObsavable<T>.Instance;
-        }
-    }
-
-    class FlattenObservable<T> : IObservable<T>
-    {
-        public IObservable<IObservable<T>> Source { get; }
-
-        public FlattenObservable(IObservable<IObservable<T>> source)
-        {
-            Source = source;
-        }
-
-        public IDisposable Subscribe(IObserver<T> observer)
-        {
-            return Source.Subscribe(new FlattenObserver<T>(observer));
-        }
-    }
-
-    class FlattenObserver<T> : IObserver<IObservable<T>>
-    {
-        public IObserver<T> Downstream { get; }
-
-        IDisposable? _currentSubscription;
-
-        public FlattenObserver(IObserver<T> downstream)
-        {
-            Downstream = downstream;
-        }
-
-        public void OnNext(IObservable<T> value)
-        {
-            _currentSubscription?.Dispose();
-
-            PassThroughObserver<T> passThroughObserver = new(Downstream);
-            _currentSubscription = value.Subscribe(passThroughObserver);
-        }
-
-        void IObserver<IObservable<T>>.OnCompleted()
-        {
-        }
-        void IObserver<IObservable<T>>.OnError(Exception error)
-        {
-        }
-    }
-
-    class SelectObservable<TSource, TResult> : IObservable<TResult>
-    {
-        public IObservable<TSource> Source { get; }
-        public Func<TSource, TResult> Selector { get; }
-
-        public SelectObservable(IObservable<TSource> source, Func<TSource, TResult> selector)
-        {
-            Source = source;
-            Selector = selector;
-        }
-
-        public IDisposable Subscribe(IObserver<TResult> observer)
-        {
-            SelectObserver<TSource, TResult> selectObserver = new(observer, Selector);
-            return Source.Subscribe(selectObserver);
-        }
-    }
-
-    class SelectObserver<TSource, TResult> : IObserver<TSource>
-    {
-        public IObserver<TResult> Downstream { get; }
-        public Func<TSource, TResult> Selector { get; }
-
-        public SelectObserver(IObserver<TResult> downstream, Func<TSource, TResult> selector)
-        {
-            Downstream = downstream;
-            Selector = selector;
-        }
-
-        public void OnNext(TSource value)
-        {
-            TResult result = Selector(value);
-            Downstream.OnNext(result);
-        }
-
-        void IObserver<TSource>.OnCompleted()
-        {
-        }
-        void IObserver<TSource>.OnError(Exception error)
-        {
-        }
-    }
-
-    class WhereObservable<T> : IObservable<T>
-    {
-        public IObservable<T> Source { get; }
-        public Func<T, bool> Predicate { get; }
-
-        public WhereObservable(IObservable<T> source, Func<T, bool> predicate)
-        {
-            Source = source;
-            Predicate = predicate;
-        }
-
-        public IDisposable Subscribe(IObserver<T> observer)
-        {
-            WhereObserver<T> whereObserver = new(observer, Predicate);
-            return Source.Subscribe(whereObserver);
-        }
-    }
-
-    class WhereObserver<T> : IObserver<T>
-    {
-        public IObserver<T> Downstream { get; }
-        public Func<T, bool> Predicate { get; }
-
-        public WhereObserver(IObserver<T> downstream, Func<T, bool> predicate)
-        {
-            Downstream = downstream;
-            Predicate = predicate;
-        }
-
-        public void OnNext(T value)
-        {
-            if (Predicate(value))
-            {
-                Downstream.OnNext(value);
-            }
-        }
-
-        void IObserver<T>.OnCompleted()
-        {
-        }
-        void IObserver<T>.OnError(Exception error)
-        {
         }
     }
 
