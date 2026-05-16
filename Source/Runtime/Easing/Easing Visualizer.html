@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Easing Function Visualizer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 40px;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 900px;
+            width: 100%;
+        }
+        h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+            text-align: center;
+        }
+        .visualizer-layout {
+            display: flex;
+            gap: 24px;
+        }
+        .list-box {
+            flex: 0 0 240px;
+            height: 400px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow-y: auto;
+            background-color: #f8fafc;
+        }
+        .list-item {
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #475569;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        .list-item:hover {
+            background-color: #edf2f7;
+            color: #0f172a;
+        }
+        .list-item.active {
+            background-color: #2563eb;
+            color: #fff;
+            font-weight: 500;
+        }
+        .main-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .controls {
+            margin-top: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+        button {
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #2563eb;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Easing Visualizer</h2>
+    <div class="visualizer-layout">
+        <div class="list-box" id="listBox"></div>
+        
+        <div class="main-panel">
+            <canvas id="graphCanvas" width="560" height="400"></canvas>
+            <div class="controls">
+                <button id="replayBtn">Replay</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const Easing = {
+        Linear: p => p,
+        Power0In: p => p,
+        Power0Out: p => p,
+        Power0InOut: p => p,
+        Power1In: p => p * p,
+        Power1Out: p => -p * (p - 2),
+        Power1InOut: p => { p /= 0.5; if (p < 1) return 0.5 * p * p; p--; return -0.5 * (p * (p - 2) - 1); },
+        Power2In: p => p * p * p,
+        Power2Out: p => { p -= 1; return p * p * p + 1; },
+        Power2InOut: p => { p /= 0.5; if (p < 1) return 0.5 * p * p * p; p -= 2; return 0.5 * (p * p * p + 2); },
+        Power3In: p => p * p * p * p,
+        Power3Out: p => { p -= 1; return -(p * p * p * p - 1); },
+        Power3InOut: p => { p /= 0.5; if (p < 1) return 0.5 * p * p * p * p; p -= 2; return -0.5 * (p * p * p * p - 2); },
+        Power4In: p => p * p * p * p * p,
+        Power4Out: p => { p -= 1; return p * p * p * p * p + 1; },
+        Power4InOut: p => { p /= 0.5; if (p < 1) return 0.5 * p * p * p * p * p; p -= 2; return 0.5 * (p * p * p * p * p + 2); },
+        SineIn: p => -Math.cos(p * Math.PI * 0.5) + 1,
+        SineOut: p => Math.sin(p * Math.PI * 0.5),
+        SineInOut: p => -0.5 * (Math.cos(Math.PI * p) - 1),
+        BackIn: p => { const s = 1.7; return p * p * ((s + 1) * p - s); },
+        BackOut: p => { const s = 1.7; p -= 1; return p * p * ((s + 1) * p + s) + 1; },
+        BackInOut: p => { const s = 1.7 * 1.5; p *= 2; return p < 1 ? 0.5 * p * p * ((s + 1) * p - s) : 0.5 * ((p -= 2) * p * ((s + 1) * p + s) + 2); },
+        BounceIn: p => {
+            p = 1 - p;
+            if (p < 1 / 2.75) return 1 - (7.56 * p * p);
+            else if (p < 2 / 2.75) { p -= 1.5 / 2.75; return 1 - (7.56 * p * p + 0.75); }
+            else if (p < 2.5 / 2.75) { p -= 2.25 / 2.75; return 1 - (7.56 * p * p + 0.93); }
+            else { p -= 2.62 / 2.75; return 1 - (7.56 * p * p + 0.98); }
+        },
+        BounceOut: p => {
+            if (p < 1 / 2.75) return 7.56 * p * p;
+            else if (p < 2 / 2.75) { p -= 1.5 / 2.75; return 7.56 * p * p + 0.75; }
+            else if (p < 2.5 / 2.75) { p -= 2.25 / 2.75; return 7.56 * p * p + 0.93; }
+            else { p -= 2.62 / 2.75; return 7.56 * p * p + 0.98; }
+        },
+        BounceInOut: p => {
+            let inv = false;
+            if (p < 0.5) { inv = true; p = 1 - (p * 2); } else { p = (p * 2) - 1; }
+            if (p < 1 / 2.75) p = 7.56 * p * p;
+            else if (p < 2 / 2.75) { p -= 1.5 / 2.75; p = 7.56 * p * p + 0.75; }
+            else if (p < 2.5 / 2.75) { p -= 2.25 / 2.75; p = 7.56 * p * p + 0.93; }
+            else { p -= 2.62 / 2.75; p = 7.56 * p * p + 0.98; }
+            return inv ? (1 - p) * 0.5 : p * 0.5 + 0.5;
+        },
+        CircIn: p => -(Math.sqrt(1 - p * p) - 1),
+        CircOut: p => { p -= 1; return Math.sqrt(1 - p * p); },
+        CircInOut: p => { p *= 2; return p < 1 ? -0.5 * (Math.sqrt(1 - p * p) - 1) : 0.5 * (Math.sqrt(1 - (p -= 2) * p) + 1); },
+        ElasticIn: p => {
+            const a = 1, per = 0.3, v = per / Math.PI * 2 * Math.asin(1 / a);
+            p -= 1; return -(a * Math.pow(2, 10 * p) * Math.sin((p - v) * Math.PI * 2 / per));
+        },
+        ElasticOut: p => {
+            const a = 1, per = 0.3, v = per / Math.PI * 2 * Math.asin(1 / a);
+            return a * Math.pow(2, -10 * p) * Math.sin((p - v) * Math.PI * 2 / per) + 1;
+        },
+        ElasticInOut: p => {
+            const a = 1, per = 0.3, v = per / Math.PI * 2 * Math.asin(1 / a);
+            p *= 2;
+            if (p < 1) { p -= 1; return -0.5 * (a * Math.pow(2, 10 * p) * Math.sin((p - v) * Math.PI * 2 / per)); }
+            else { p -= 1; return a * Math.pow(2, -10 * p) * Math.sin((p - v) * Math.PI * 2 / per) * 0.5 + 1; }
+        },
+        ExpoIn: p => p <= 0 ? 0 : Math.pow(2, 10 * (p - 1)),
+        ExpoOut: p => p >= 1 ? 1 : 1 - Math.pow(2, -10 * p),
+        ExpoInOut: p => {
+            if (p <= 0) return 0;
+            if (p >= 1) return 1;
+            p *= 2;
+            return p < 1 ? 0.5 * Math.pow(2, 10 * (p - 1)) : 0.5 * (2 - Math.pow(2, -10 * (p - 1)));
+        }
+    };
+
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+    const listBox = document.getElementById('listBox');
+    const replayBtn = document.getElementById('replayBtn');
+
+    let currentEase = 'Linear';
+    let startTime = Date.now();
+    const duration = 2000;
+
+    Object.keys(Easing).forEach(key => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.textContent = key;
+        
+        if (key === currentEase) {
+            item.classList.add('active');
+        }
+        
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.list-item').forEach(el => el.classList.remove('active'));
+            item.classList.add('active');
+            currentEase = key;
+            startTime = Date.now();
+            animate();
+        });
+        
+        listBox.appendChild(item);
+    });
+
+    const margin = 50;
+    const width = canvas.width - margin * 2;
+    const height = canvas.height - margin * 2;
+    
+    function mapX(p) { return margin + p * width; }
+    function mapY(val) { return margin + height - ((val + 0.5) / 2) * height; }
+
+    function drawGrid() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        
+        const y0 = mapY(0);
+        const y1 = mapY(1);
+        
+        ctx.moveTo(margin, y0); ctx.lineTo(margin + width, y0);
+        ctx.moveTo(margin, y1); ctx.lineTo(margin + width, y1);
+        ctx.stroke();
+
+        ctx.fillStyle = '#64748b';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('1.0', margin - 25, y1 + 4);
+        ctx.fillText('0.0', margin - 25, y0 + 4);
+        ctx.fillText('Time ➔', margin + width / 2 - 20, y0 + 25);
+    }
+
+    function drawCurve(easeFunc) {
+        ctx.strokeStyle = '#2563eb';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        for (let i = 0; i <= 100; i++) {
+            const p = i / 100;
+            const val = easeFunc(p);
+            const x = mapX(p);
+            const y = mapY(val);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+    }
+
+    function animate() {
+        let t = (Date.now() - startTime) / duration;
+        let running = true;
+        if (t > 1) {
+            t = 1;
+            running = false;
+        }
+
+        const easeFunc = Easing[currentEase];
+        const val = easeFunc(t);
+
+        drawGrid();
+        drawCurve(easeFunc);
+
+        const currentX = mapX(t);
+        const currentY = mapY(val);
+        
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(currentX, currentY, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        const y0 = mapY(0);
+        const objectX = margin + val * width;
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(objectX, y0, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (running) {
+            requestAnimationFrame(animate);
+        }
+    }
+
+    replayBtn.addEventListener('click', () => {
+        startTime = Date.now();
+        animate();
+    });
+
+    animate();
+</script>
+
+</body>
+</html>
