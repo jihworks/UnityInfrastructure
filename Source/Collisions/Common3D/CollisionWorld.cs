@@ -271,7 +271,7 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
             }
         }
 
-        public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, out ICollision? hitCollision, out float hitDistance, uint collisionChannelMask = CollisionChannelEx.All, HashSet<ICollision>? ignoredCollisions = null)
+        public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, [NotNullWhen(true)] out ICollision? hitCollision, out float hitDistance, uint collisionChannelMask = CollisionChannelEx.All, HashSet<ICollision>? ignoredCollisions = null)
         {
             Flush();
 
