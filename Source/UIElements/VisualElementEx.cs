@@ -16,5 +16,9 @@ namespace Jih.Unity.Infrastructure.UIElements
         {
             return element.Q<TElement>(name, className) ?? throw new NullReferenceException($"Visual element not found. Name: '{name}', ClassName: '{className}'");
         }
+        public static VisualElement QT(this VisualElement element, string? name = null, string? className = null)
+        {
+            return element.Q(name, className) ?? throw new NullReferenceException($"Visual element not found. Name: '{name}', ClassName: '{className}'");
+        }
     }
 }

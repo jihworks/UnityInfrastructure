@@ -13,11 +13,16 @@ namespace Jih.Unity.Infrastructure.Runtime
         void End(IState? next);
     }
 
-    public abstract class StateBase<TOwner> : IState
+    public interface IStateOwner<TState> where TState : IState
+    {
+        TState? CurrentState { get; set; }
+    }
+
+    public abstract class BaseState<TState, TOwner> : IState where TState : IState where TOwner : IStateOwner<TState>
     {
         public TOwner Owner { get; }
 
-        public StateBase(TOwner owner)
+        public BaseState(TOwner owner)
         {
             Owner = owner;
         }
@@ -30,6 +35,12 @@ namespace Jih.Unity.Infrastructure.Runtime
         }
 
         public virtual void Update()
+        {
+        }
+        public virtual void FixedUpdate()
+        {
+        }
+        public virtual void LateUpdate()
         {
         }
     }

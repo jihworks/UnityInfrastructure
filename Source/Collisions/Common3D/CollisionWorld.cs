@@ -271,6 +271,10 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
             }
         }
 
+        /// <param name="maxDistance">DO NOT input too large value such as <c>float.MaxValue</c>.</param>
+        /// <remarks>
+        /// If the <paramref name="maxDistance"/> is too large, it will occur unbearable loop when nothing hit before to reach the distance.
+        /// </remarks>
         public bool Raycast(Vector3 origin, Vector3 direction, float maxDistance, [NotNullWhen(true)] out ICollision? hitCollision, out float hitDistance, uint collisionChannelMask = CollisionChannelEx.All, HashSet<ICollision>? ignoredCollisions = null)
         {
             Flush();
@@ -349,7 +353,7 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
                         break;
                     }
 
-                    // To nect cell.
+                    // To next cell.
                     if (tMaxX < tMaxY && tMaxX < tMaxZ)
                     {
                         // X axis.
