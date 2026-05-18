@@ -92,8 +92,8 @@ namespace Jih.Unity.Infrastructure.Cinemachine
 
         [Space(6f)]
         [Tooltip("Editing this value has no effect. Edit 'Camera Target Y Curve'.")]
-        [SerializeField] float _currentTargetY = 0f;
-        public float CurrentTargetY => _currentTargetY;
+        [SerializeField] float _currentTargetYDelta = 0f;
+        public float CurrentTargetYDelta => _currentTargetYDelta;
 
         CinemachineCamera? _cinemachineCamera;
         public CinemachineCamera CinemachineCamera
@@ -133,6 +133,9 @@ namespace Jih.Unity.Infrastructure.Cinemachine
                 return _tackingTarget.ThrowIfNull(nameof(TrackingTarget));
             }
         }
+
+        public Vector3 CurrentMoveLocation => TrackingTarget.position;
+        public float CurrentTargetY => TrackingTarget.position.y;
 
         float _initialCameraDistance, _initialCameraOrbitYaw;
         Vector3 _currentCameraOffset, _dampCameraOffset;
@@ -178,29 +181,34 @@ namespace Jih.Unity.Infrastructure.Cinemachine
                 CinemachineFollow.FollowOffset = _currentCameraOffset;
             }
             {
-                _currentTargetYValue = Mathf.SmoothDamp(_currentTargetYValue, _initialTargetYValue + _currentTargetY, ref _dampTargetYValue, _cameraOffsetSmoothTime, float.PositiveInfinity, Time.deltaTime);
+                _currentTargetYValue = Mathf.SmoothDamp(_currentTargetYValue, _initialTargetYValue + _currentTargetYDelta, ref _dampTargetYValue, _cameraOffsetSmoothTime, float.PositiveInfinity, Time.deltaTime);
 
-                Vector3 location = TrackingTarget.position;
-                location.y = _currentTargetYValue;
-                TrackingTarget.position = location;
+                SetTrackingTargetY(_currentTargetYValue);
             }
         }
 
-        public void ResetCameraAndMovement()
+        /// <param name="distanceOverwrite">Will be clampped by <see cref="MinCameraDistance"/> and <see cref="MaxCameraDistance"/>.</param>
+        /// <param name="moveLocationOverwrite">Using <c>x</c> and <c>z</c> value only.</param>
+        public void ResetCameraAndMovement(float? orbitYawOverwrite = null, float? distanceOverwrite = null, Vector3? moveLocationOverwrite = null)
         {
             _dampCameraOffset = Vector3.zero;
             _dampMoveLocation = Vector3.zero;
             _dampTargetYValue = 0f;
 
-            _currentCameraOrbitYaw = _initialCameraOrbitYaw;
+            _currentCameraOrbitYaw = orbitYawOverwrite ?? _initialCameraOrbitYaw;
 
-            _currentCameraDistance = _initialCameraDistance;
+            _currentCameraDistance = distanceOverwrite.HasValue ?
+                Math.Clamp(distanceOverwrite.Value, _minCameraDistance, _maxCameraDistance) :
+                _initialCameraDistance;
             UpdateCameraByDistance();
 
             CinemachineFollow.FollowOffset = _currentCameraOffset = GetCurrentCameraOffset();
 
-            TrackingTarget.position = _currentMoveLocation = _initialMoveLocation;
-            _currentTargetYValue = _initialTargetYValue;
+            _currentMoveLocation = moveLocationOverwrite ?? _initialMoveLocation;
+            _currentTargetYValue = _initialTargetYValue + _currentTargetYDelta;
+
+            SetTrackingTargetXZ(_currentMoveLocation.x, _currentMoveLocation.z);
+            SetTrackingTargetY(_currentTargetYValue);
         }
 
         void UpdateCameraByDistance()
@@ -209,7 +217,7 @@ namespace Jih.Unity.Infrastructure.Cinemachine
 
             _currentCameraOrbitPitch = _cameraPitchCurve.Evaluate(alpha);
 
-            _currentTargetY = _cameraTargetYCurve.Evaluate(alpha);
+            _currentTargetYDelta = _cameraTargetYCurve.Evaluate(alpha);
 
             _currentMovementSpeed = _movementSpeedCurve.Evaluate(alpha);
             _currentZoomSpeed = _zoomSpeedCurve.Evaluate(alpha);
@@ -242,12 +250,7 @@ namespace Jih.Unity.Infrastructure.Cinemachine
 
             ModifyCameraMoveLocation(ref _currentMoveLocation);
 
-            {
-                Vector3 location = TrackingTarget.position;
-                location.x = _currentMoveLocation.x;
-                location.z = _currentMoveLocation.z;
-                TrackingTarget.position = location;
-            }
+            SetTrackingTargetXZ(_currentMoveLocation.x, _currentMoveLocation.z);
         }
 
         void UpdateCameraYawInput()
@@ -292,6 +295,21 @@ namespace Jih.Unity.Infrastructure.Cinemachine
             return (_currentCameraDistance - _minCameraDistance).SafeDivide(distDelta);
         }
 
+        void SetTrackingTargetY(float y)
+        {
+            Vector3 location = TrackingTarget.position;
+            location.y = y;
+            TrackingTarget.position = location;
+        }
+        void SetTrackingTargetXZ(float x, float z)
+        {
+            Vector3 location = TrackingTarget.position;
+            location.x = x;
+            location.z = z;
+            TrackingTarget.position = location;
+        }
+
+        /// <param name="location">Using <c>x</c> and <c>z</c> value only.</param>
         protected virtual void ModifyCameraMoveLocation(ref Vector3 location)
         {
         }
