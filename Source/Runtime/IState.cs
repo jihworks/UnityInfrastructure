@@ -15,7 +15,7 @@ namespace Jih.Unity.Infrastructure.Runtime
 
     public interface IStateOwner<TState> where TState : IState
     {
-        TState? CurrentState { get; set; }
+        TState? CurrentState { get; }
     }
 
     public abstract class BaseState<TState, TOwner> : IState where TState : IState where TOwner : IStateOwner<TState>

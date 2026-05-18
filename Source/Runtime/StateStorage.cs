@@ -39,8 +39,11 @@ namespace Jih.Unity.Infrastructure.Runtime
             {
                 if (ReferenceEquals(value, _current))
                 {
-                    Debug.LogWarning($"=== State '{Name}' trying the same instance.");
-                    Debug.LogWarning("    Instance: " + value);
+                    if (value is not null)
+                    {
+                        Debug.LogWarning($"=== State '{Name}' trying the same instance.");
+                        Debug.LogWarning("    Instance: " + value);
+                    }
                     return;
                 }
                 if (_isLocked)
