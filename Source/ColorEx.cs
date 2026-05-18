@@ -26,14 +26,14 @@ namespace Jih.Unity.Infrastructure
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Color FromHexRgb(uint hex)
+        public static Color FromHexRgb(uint hex, byte a = byte.MaxValue)
         {
-            return FromHexRgb32(hex);
+            return FromHexRgb32(hex, a);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Color FromHexRgb(string hex)
+        public static Color FromHexRgb(string hex, byte a = byte.MaxValue)
         {
-            return FromHexRgb32(hex);
+            return FromHexRgb32(hex, a);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,7 +63,7 @@ namespace Jih.Unity.Infrastructure
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Color32 FromHexRgb32(uint hex)
+        public static Color32 FromHexRgb32(uint hex, byte a = byte.MaxValue)
         {
             if (hex > 0xFFFFFF)
             {
@@ -74,17 +74,17 @@ namespace Jih.Unity.Infrastructure
             byte g = (byte)((hex >> 8) & 0xFF);
             byte b = (byte)(hex & 0xFF);
 
-            return new Color32(r, g, b, byte.MaxValue);
+            return new Color32(r, g, b, a);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Color32 FromHexRgb32(string hex)
+        public static Color32 FromHexRgb32(string hex, byte a = byte.MaxValue)
         {
             if (hex.StartsWith("#"))
             {
                 hex = hex[1..];
             }
             uint hexValue = uint.Parse(hex, NumberStyles.HexNumber);
-            return FromHexRgb32(hexValue);
+            return FromHexRgb32(hexValue, a);
         }
     }
 }
