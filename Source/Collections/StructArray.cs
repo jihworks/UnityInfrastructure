@@ -10,6 +10,134 @@ using System.Collections.Generic;
 
 namespace Jih.Unity.Infrastructure.Collections
 {
+    public struct StructArray4<T> : IEquatable<StructArray4<T>>
+    {
+        public readonly int Length => MaxLength;
+
+        public T E0, E1, E2, E3;
+
+        public T this[int index]
+        {
+            readonly get => index switch
+            {
+                0 => E0,
+                1 => E1,
+                2 => E2,
+                3 => E3,
+                _ => throw new ArgumentOutOfRangeException(nameof(index)),
+            };
+            set
+            {
+                switch (index)
+                {
+                    case 0: E0 = value; break;
+                    case 1: E1 = value; break;
+                    case 2: E2 = value; break;
+                    case 3: E3 = value; break;
+                    default: throw new ArgumentOutOfRangeException(nameof(index));
+                }
+            }
+        }
+
+        public readonly override bool Equals(object? obj)
+        {
+            return obj is StructArray4<T> array && Equals(array);
+        }
+        public readonly bool Equals(StructArray4<T> other)
+        {
+            return EqualityComparer<T>.Default.Equals(E0, other.E0) &&
+                   EqualityComparer<T>.Default.Equals(E1, other.E1) &&
+                   EqualityComparer<T>.Default.Equals(E2, other.E2) &&
+                   EqualityComparer<T>.Default.Equals(E3, other.E3);
+        }
+
+        public readonly override int GetHashCode()
+        {
+            return HashCode.Combine(E0, E1, E2, E3);
+        }
+
+        public static bool operator ==(StructArray4<T> left, StructArray4<T> right)
+        {
+            return left.Equals(right);
+        }
+        public static bool operator !=(StructArray4<T> left, StructArray4<T> right)
+        {
+            return !(left == right);
+        }
+
+        public const int MaxLength = 4;
+    }
+
+    public struct StructArray8<T> : IEquatable<StructArray8<T>>
+    {
+        public readonly int Length => MaxLength;
+
+        public T E0, E1, E2, E3, E4, E5, E6, E7;
+
+        public T this[int index]
+        {
+            readonly get => index switch
+            {
+                0 => E0,
+                1 => E1,
+                2 => E2,
+                3 => E3,
+                4 => E4,
+                5 => E5,
+                6 => E6,
+                7 => E7,
+                _ => throw new ArgumentOutOfRangeException(nameof(index)),
+            };
+            set
+            {
+                switch (index)
+                {
+                    case 0: E0 = value; break;
+                    case 1: E1 = value; break;
+                    case 2: E2 = value; break;
+                    case 3: E3 = value; break;
+                    case 4: E4 = value; break;
+                    case 5: E5 = value; break;
+                    case 6: E6 = value; break;
+                    case 7: E7 = value; break;
+                    default: throw new ArgumentOutOfRangeException(nameof(index));
+                }
+            }
+        }
+
+        public readonly override bool Equals(object? obj)
+        {
+            return obj is StructArray8<T> array && Equals(array);
+        }
+        public readonly bool Equals(StructArray8<T> other)
+        {
+            return EqualityComparer<T>.Default.Equals(E0, other.E0) &&
+                   EqualityComparer<T>.Default.Equals(E1, other.E1) &&
+                   EqualityComparer<T>.Default.Equals(E2, other.E2) &&
+                   EqualityComparer<T>.Default.Equals(E3, other.E3) &&
+                   EqualityComparer<T>.Default.Equals(E4, other.E4) &&
+                   EqualityComparer<T>.Default.Equals(E5, other.E5) &&
+                   EqualityComparer<T>.Default.Equals(E6, other.E6) &&
+                   EqualityComparer<T>.Default.Equals(E7, other.E7);
+        }
+
+        public readonly override int GetHashCode()
+        {
+            return HashCode.Combine(E0, E1, E2, E3, E4, E5, E6, E7);
+        }
+
+        public static bool operator ==(StructArray8<T> left, StructArray8<T> right)
+        {
+            return left.Equals(right);
+        }
+        public static bool operator !=(StructArray8<T> left, StructArray8<T> right)
+        {
+            return !(left == right);
+        }
+
+        public const int MaxLength = 8;
+    }
+
     public struct StructArray16<T> : IEquatable<StructArray16<T>>
     {
         public readonly int Length => MaxLength;
