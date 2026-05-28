@@ -101,4 +101,34 @@ namespace Jih.Unity.Infrastructure.Runtime
         {
         }
     }
+
+    public class LinkedListNodePool<T> : BaseObjectPool<LinkedListNode<T>>
+    {
+        public T DefaultValue { get; }
+
+        public LinkedListNodePool(T defaultValue = default!, int initialCollectionCapacity = DefaultInitialCollectionCapacity, bool isThreadSafe = DefaultIsThreadSafe)
+            : base(initialCollectionCapacity, isThreadSafe)
+        {
+            DefaultValue = defaultValue;
+        }
+
+        protected override LinkedListNode<T> Create()
+        {
+            return new LinkedListNode<T>(DefaultValue);
+        }
+
+        protected override void Activate(LinkedListNode<T> obj)
+        {
+            obj.Value = DefaultValue;
+        }
+
+        protected override void Deactivate(LinkedListNode<T> obj)
+        {
+            obj.Value = DefaultValue;
+        }
+
+        protected override void Destroy(LinkedListNode<T> obj)
+        {
+        }
+    }
 }
