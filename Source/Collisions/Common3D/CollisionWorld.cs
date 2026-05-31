@@ -59,6 +59,8 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
     /// </description>
     /// </item>
     /// </list>
+    /// <br/>
+    /// <b>NOT</b> thread-safe.
     /// </remarks>
     public class CollisionWorld
     {
@@ -72,7 +74,7 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
 
         readonly ListPool<ICollision> _collisionListPool = new();
         readonly ListPool<Vector3Int> _cellsListPool = new();
-        readonly HashSetPool<ICollision> _collisionMapPool = new(isThreadSafe: true);
+        readonly HashSetPool<ICollision> _collisionMapPool = new();
 
         readonly HashSet<ICollision> _pendingCellUpdateCollisions = new();
 
@@ -158,12 +160,17 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
             Flush();
 
             HashSet<ICollision> processed = _collisionMapPool.Get();
+            List<Vector3Int> cells = _cellsListPool.Get();
             try
             {
+                GetCellsForBounds(collision.WorldBounds, cells);
+
                 int count = 0;
 
-                foreach (var cellPos in EnumerateCellsForBounds(collision.WorldBounds))
+                for (int c = 0; c < cells.Count; c++)
                 {
+                    Vector3Int cellPos = cells[c];
+
                     if (!_cells.TryGetValue(cellPos, out List<ICollision>? cellCollisions))
                     {
                         continue;
@@ -208,6 +215,7 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
             }
             finally
             {
+                _cellsListPool.Release(cells);
                 _collisionMapPool.Release(processed);
             }
         }
@@ -218,10 +226,15 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
             Flush();
 
             HashSet<ICollision> processed = _collisionMapPool.Get();
+            List<Vector3Int> cells = _cellsListPool.Get();
             try
             {
-                foreach (var cellPos in EnumerateCellsForBounds(collision.WorldBounds))
+                GetCellsForBounds(collision.WorldBounds, cells);
+
+                for (int c = 0; c < cells.Count; c++)
                 {
+                    Vector3Int cellPos = cells[c];
+
                     if (!_cells.TryGetValue(cellPos, out List<ICollision>? cellCollisions))
                     {
                         continue;
@@ -267,6 +280,7 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
             }
             finally
             {
+                _cellsListPool.Release(cells);
                 _collisionMapPool.Release(processed);
             }
         }
@@ -444,7 +458,7 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
                 newCells = _cellsListPool.Get();
                 _cellsMap.Add(collision, newCells);
             }
-            newCells.AddRange(EnumerateCellsForBounds(collision.WorldBounds));
+            GetCellsForBounds(collision.WorldBounds, newCells);
 
             foreach (var cellPos in newCells)
             {
@@ -484,7 +498,7 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
             }
         }
 
-        IEnumerable<Vector3Int> EnumerateCellsForBounds(Bounds bounds)
+        void GetCellsForBounds(Bounds bounds, List<Vector3Int> buffer)
         {
             Vector3Int minCell = GetCellPosition(bounds.min);
             Vector3Int maxCell = GetCellPosition(bounds.max);
@@ -495,7 +509,7 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
                 {
                     for (int z = minCell.z; z <= maxCell.z; z++)
                     {
-                        yield return new Vector3Int(x, y, z);
+                        buffer.Add(new Vector3Int(x, y, z));
                     }
                 }
             }
