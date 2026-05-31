@@ -37,6 +37,50 @@ namespace Jih.Unity.Infrastructure.UIElements
             return count;
         }
 
+        public static void ForeachHierarchyTree(this VisualElement root, Action<VisualElement> action, bool includeSelf)
+        {
+            if (includeSelf)
+            {
+                action(root);
+            }
+
+            static void Populate(VisualElement parent, Action<VisualElement> action)
+            {
+                int childCount = parent.hierarchy.childCount;
+                for (int i = 0; i < childCount; i++)
+                {
+                    VisualElement child = parent.hierarchy[i];
+                    action(child);
+
+                    Populate(child, action);
+                }
+            }
+
+            Populate(root, action);
+        }
+
+        public static void GetHierarchyTree(this VisualElement root, List<VisualElement> buffer, bool includeSelf)
+        {
+            if (includeSelf)
+            {
+                buffer.Add(root);
+            }
+
+            static void Populate(VisualElement parent, List<VisualElement> resultBuffer)
+            {
+                int childCount = parent.hierarchy.childCount;
+                for (int i = 0; i < childCount; i++)
+                {
+                    VisualElement child = parent.hierarchy[i];
+                    resultBuffer.Add(child);
+
+                    Populate(child, resultBuffer);
+                }
+            }
+
+            Populate(root, buffer);
+        }
+
         /// <param name="toolTip">Root element of the tool-tip. This element should provide whole size of the tool-tip</param>
         /// <param name="root">Full-screen element. This element should provide screen size in UI space.</param>
         /// <param name="anchorPoint">Mouse(or other pointer) location in <b>UI space</b>.</param>
