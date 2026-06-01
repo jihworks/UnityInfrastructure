@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,10 +15,12 @@ namespace Jih.Unity.Infrastructure.UIElements
 {
     public static class VisualElementEx
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TElement QT<TElement>(this VisualElement element, string? name = null, string? className = null) where TElement : VisualElement
         {
             return element.Q<TElement>(name, className) ?? throw new NullReferenceException($"Visual element not found. Name: '{name}', ClassName: '{className}'");
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static VisualElement QT(this VisualElement element, string? name = null, string? className = null)
         {
             return element.Q(name, className) ?? throw new NullReferenceException($"Visual element not found. Name: '{name}', ClassName: '{className}'");
@@ -79,6 +82,46 @@ namespace Jih.Unity.Infrastructure.UIElements
             }
 
             Populate(root, buffer);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void DisableNonEssentialFocuses(VisualElement root, bool includeSelf)
+        {
+            root.ForeachHierarchyTree(element =>
+            {
+                if (!IsFocusEssential(element))
+                {
+                    element.focusable = false;
+                }
+            },
+            includeSelf);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsFocusEssential(VisualElement element)
+        {
+            return element is TextField ||
+                element is ScrollView ||
+                element is Slider ||
+                element is SliderInt ||
+                element is DropdownField ||
+                // TextField internal actual text input(TextInputBase).
+                element.GetType().Name.Contains("TextInput");
+        }
+
+        /// <param name="location">Input location in screen space such as <c>UnityEngine.InputSystem.Mouse.current.position</c>.</param>
+        /// <remarks>
+        /// The Input System's coordinate system is using left-bottom as origin, but the UI Toolkit is using left-top as origin.<br/>
+        /// So have to invert Y-value before convert it to panel location.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 ConvertScreenInputToPanel(IPanel panel, Vector2 location)
+        {
+            Vector2 modifiedLocation;
+            modifiedLocation.x = location.x;
+            modifiedLocation.y = Screen.height - location.y; // Have to invert Y-value for panel coordinate system.
+
+            return RuntimePanelUtils.ScreenToPanel(panel, modifiedLocation);
         }
 
         /// <param name="toolTip">Root element of the tool-tip. This element should provide whole size of the tool-tip</param>
