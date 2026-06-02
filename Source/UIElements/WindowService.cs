@@ -87,6 +87,12 @@ namespace Jih.Unity.Infrastructure.UIElements
         {
             if (_windows.ContainsKey(window))
             {
+                if (window.IsModal)
+                {
+                    throw new InvalidOperationException($"The Window '{window.TitleLabel.text}' already shown as modal. But trying to show modeless.");
+                }
+
+                // If equivalent show call, bring the window to front.
                 window.Root.BringToFront();
                 return;
             }
@@ -137,8 +143,15 @@ namespace Jih.Unity.Infrastructure.UIElements
 
         public void ShowDialog(Window window, Window? owner = null)
         {
-            if (_windows.ContainsKey(window))
+            if (_windows.TryGetValue(window, out WindowState prevState))
             {
+                if (!window.IsModal)
+                {
+                    throw new InvalidOperationException($"The Window '{window.TitleLabel.text}' already shown as modeless. But trying to show modal.");
+                }
+
+                // If equivalent show call, bring the window to front.
+                prevState.Blocker?.BringToFront();
                 window.Root.BringToFront();
                 return;
             }
