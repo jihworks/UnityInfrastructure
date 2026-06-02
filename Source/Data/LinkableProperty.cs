@@ -21,28 +21,32 @@ namespace Jih.Unity.Infrastructure.Data
                 CheckThread();
                 return _value;
             }
-            set
-            {
-                CheckThread();
-
-                if (EqualityComparer<T>.Default.Equals(value!, _value!))
-                {
-                    return;
-                }
-                _value = value;
-
-                _invokeBuffer.Clear();
-                _invokeBuffer.AddRange(_observers);
-                for (int i = 0; i < _invokeBuffer.Count; i++)
-                {
-                    _invokeBuffer[i].OnNext(value!);
-                }
-                _invokeBuffer.Clear();
-            }
+            set => SetProperty(value);
         }
 
         readonly List<IObserver<T>> _observers = new();
         readonly List<IObserver<T>> _invokeBuffer = new();
+
+        public bool SetProperty(T value)
+        {
+            CheckThread();
+
+            if (EqualityComparer<T>.Default.Equals(value!, _value!))
+            {
+                return false;
+            }
+            _value = value;
+
+            _invokeBuffer.Clear();
+            _invokeBuffer.AddRange(_observers);
+            for (int i = 0; i < _invokeBuffer.Count; i++)
+            {
+                _invokeBuffer[i].OnNext(value!);
+            }
+            _invokeBuffer.Clear();
+
+            return true;
+        }
 
         IDisposable IObservable<T>.Subscribe(IObserver<T> observer)
         {
