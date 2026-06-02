@@ -163,7 +163,11 @@ namespace Jih.Unity.Infrastructure.UIElements
                 }
 
                 // If equivalent show call, bring the window to front.
-                prevState.Blocker?.BringToFront();
+                if (prevState.Blocker is not null)
+                {
+                    prevState.Blocker.BringToFront();
+                    prevState.Blocker.Focus();
+                }
                 window.Root.BringToFront();
                 return;
             }
@@ -220,6 +224,7 @@ namespace Jih.Unity.Infrastructure.UIElements
                 container.Add(blocker);
                 container.Add(window.Root);
             }
+            blocker.Focus();
 
             WindowState state = new(windowHandler, titleBarHandler, blocker, elementStates);
             _windows.Add(window, state);
@@ -647,7 +652,7 @@ namespace Jih.Unity.Infrastructure.UIElements
             public Blocker()
             {
                 pickingMode = PickingMode.Position;
-                focusable = false;
+                focusable = true;
                     
                 AddToClassList(BlockerClassName);
 
