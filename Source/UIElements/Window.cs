@@ -23,7 +23,7 @@ namespace Jih.Unity.Infrastructure.UIElements
         public bool IsShown { get; internal set; }
         public bool IsPlaced { get; internal set; }
 
-        public WindowStartupLocation WindowStartupLocation { get; internal set; }
+        public WindowStartupLocation WindowStartupLocation { get; set; }
 
         public VisualElement Root { get; }
 
@@ -33,6 +33,8 @@ namespace Jih.Unity.Infrastructure.UIElements
         public Label TitleLabel { get; }
         public Button MinimizeButton { get; }
         public Button CloseButton { get; }
+
+        public string Title { get => TitleLabel.text; set => TitleLabel.text = value; }
 
         bool _isMinimized;
         public bool IsMinimized
@@ -108,6 +110,11 @@ namespace Jih.Unity.Infrastructure.UIElements
 
         void InitializeComponents()
         {
+            Root.style.position = Position.Absolute;
+            Root.style.left = 0f;
+            Root.style.top = 0f;
+            Root.style.right = new StyleLength(StyleKeyword.Auto);
+            Root.style.bottom = new StyleLength(StyleKeyword.Auto);
             Root.AddToClassList(RootClassName);
 
             TitleBar.pickingMode = PickingMode.Position;
@@ -136,19 +143,11 @@ namespace Jih.Unity.Infrastructure.UIElements
 
         protected virtual void OnMinimizeButtonClicked()
         {
-            if (!IsPlaced)
-            {
-                return;
-            }
             IsMinimized = !IsMinimized;
         }
 
         protected virtual void OnCloseButtonClicked()
         {
-            if (!IsPlaced)
-            {
-                return;
-            }
             Service?.Close(this);
         }
 
@@ -158,12 +157,13 @@ namespace Jih.Unity.Infrastructure.UIElements
         }
 
         /// <summary>
-        /// Called when the Window is registered to the hierarchy but not visible to user yet.
+        /// Called when the Window is registered to the hierarchy but <b>not visible</b> to user yet.
         /// </summary>
         /// <remarks>
         /// The UI Toolkit needs some frames to calculate the layout. Therefore, the Window is not visible immediately.<br/>
-        /// However, the elements are actually interactable.<br/>
-        /// Use <see cref="IsPlaced"/> to check the state.
+        /// And, the elements in Window are <b>NOT</b> pickable(<see cref="PickingMode.Ignore"/>) and <b>NOT</b> focusable(<see cref="Focusable.focusable"/>).<br/>
+        /// <br/>
+        /// Use <see cref="IsShown"/> to check the state.
         /// </remarks>
         protected internal virtual void OnShown(WindowShownEventArgs e)
         {
@@ -172,7 +172,15 @@ namespace Jih.Unity.Infrastructure.UIElements
         /// Called when layout of the Window had been calculated and the Window is placed. The Window is now visible to user at this moment.
         /// </summary>
         /// <remarks>
-        /// Use <see cref="IsPlaced"/> to check the state.
+        /// In this state, the elements in Window now restored pickable(<see cref="PickingMode.Ignore"/>) and focusable(<see cref="Focusable.focusable"/>) states.<br/>
+        /// <br/>
+        /// There are several implementation to prevent ghost interactions:<br/>
+        /// 1. Adding dynamic elements which are not effect to layout such as list items in this timing.<br/>
+        /// - The service will handle interaction states of existing elements.<br/>
+        /// 2. Starts with not interactable states and activate interactable states in this timing manually.<br/>
+        /// - If adding elements after <see cref="OnShown(WindowShownEventArgs)"/> timing.<br/>
+        /// 3. Check <see cref="IsPlaced"/> flag before execute interaction logics.<br/>
+        /// - The simplest method. However, there is a risk which is the user interacts with transparent wall.
         /// </remarks>
         protected internal virtual void OnPlaced(WindowPlacedEventArgs e)
         {

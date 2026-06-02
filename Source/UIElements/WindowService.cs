@@ -5,6 +5,7 @@
 
 #nullable enable
 
+using Jih.Unity.Infrastructure.Runtime;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,6 +27,8 @@ namespace Jih.Unity.Infrastructure.UIElements
         VisualElement FullScreenContainer => _fullScreenContainer.ThrowIfNull(nameof(FullScreenContainer));
 
         readonly Dictionary<Window, WindowState> _windows = new();
+
+        readonly DictionaryPool<VisualElement, ElementState> _elementStatesPool = new();
 
         public WindowService()
         {
@@ -112,7 +115,9 @@ namespace Jih.Unity.Infrastructure.UIElements
                 throw new InvalidOperationException("Owner window is not shown.");
             }
 
-            WindowHandler windowHandler = new(this, window);
+            Dictionary<VisualElement, ElementState> elementStates = _elementStatesPool.Get();
+
+            WindowHandler windowHandler = new(this, window, elementStates);
             windowHandler.Attach();
             TitleBarHandler titleBarHandler = new(this, window);
             titleBarHandler.Attach();
@@ -128,9 +133,16 @@ namespace Jih.Unity.Infrastructure.UIElements
             // Start with hidden, and show after a short delay to avoid showing the window in an unexpected location due to the layout not being updated yet.
             window.Root.style.visibility = Visibility.Hidden;
 
+            // Collect elements' interactable states and invalidate all. Restore when the Window has been placed.
+            window.Root.ForeachHierarchyTree(element =>
+            {
+                elementStates.Add(element, ElementState.CollectAndInvalidate(element));
+            },
+            includeSelf: true);
+
             ModelessContainer.Add(window.Root);
 
-            WindowState state = new(windowHandler, titleBarHandler, null);
+            WindowState state = new(windowHandler, titleBarHandler, null, elementStates);
             _windows.Add(window, state);
             window.Service = this;
 
@@ -171,7 +183,9 @@ namespace Jih.Unity.Infrastructure.UIElements
                 throw new InvalidOperationException("Owner window is not shown.");
             }
 
-            WindowHandler windowHandler = new(this, window);
+            Dictionary<VisualElement, ElementState> elementStates = _elementStatesPool.Get();
+            
+            WindowHandler windowHandler = new(this, window, elementStates);
             windowHandler.Attach();
             TitleBarHandler titleBarHandler = new(this, window);
             titleBarHandler.Attach();
@@ -187,7 +201,14 @@ namespace Jih.Unity.Infrastructure.UIElements
             // Start with hidden.
             window.Root.style.visibility = Visibility.Hidden;
 
-            VisualElement blocker = CreateBlocker();
+            // Collect elements' interactable states and invalidate all.
+            window.Root.ForeachHierarchyTree(element =>
+            {
+                elementStates.Add(element, ElementState.CollectAndInvalidate(element));
+            },
+            includeSelf: true);
+
+            Blocker blocker = new();
             if (owner is not null)
             {
                 owner.Root.Add(blocker);
@@ -200,7 +221,7 @@ namespace Jih.Unity.Infrastructure.UIElements
                 container.Add(window.Root);
             }
 
-            WindowState state = new(windowHandler, titleBarHandler, blocker);
+            WindowState state = new(windowHandler, titleBarHandler, blocker, elementStates);
             _windows.Add(window, state);
             window.Service = this;
 
@@ -258,6 +279,16 @@ namespace Jih.Unity.Infrastructure.UIElements
 
             window.Root.RemoveFromHierarchy();
 
+            if (!window.IsPlaced)
+            {
+                // Restore elements' states if not placed yet but closing. Considering reusability of the Window.
+                foreach (var pair in state.ElementStates)
+                {
+                    pair.Value.Restore(pair.Key);
+                }
+            }
+
+            _elementStatesPool.Release(state.ElementStates);
             _windows.Remove(window);
             window.Service = null;
 
@@ -268,6 +299,15 @@ namespace Jih.Unity.Infrastructure.UIElements
             window.OnClosed(new WindowClosedEventArgs(window, reason));
 
             return true;
+        }
+
+        public int GetWindows(List<Window> buffer)
+        {
+            foreach (var key in _windows.Keys)
+            {
+                buffer.Add(key);
+            }
+            return _windows.Count;
         }
 
         void CloseAllForClear(WindowCloseReason reason)
@@ -415,10 +455,13 @@ namespace Jih.Unity.Infrastructure.UIElements
             int _visibleCounter = 0;
             bool _isVisible = false;
 
-            public WindowHandler(WindowService service, Window window)
+            readonly Dictionary<VisualElement, ElementState> _elementStates;
+
+            public WindowHandler(WindowService service, Window window, Dictionary<VisualElement, ElementState> elementStates)
             {
                 Service = service;
                 Window = window;
+                _elementStates = elementStates;
             }
 
             public void Update()
@@ -443,6 +486,12 @@ namespace Jih.Unity.Infrastructure.UIElements
                 {
                     // Actually show the window after the location is placed.
                     Window.Root.style.visibility = Visibility.Visible;
+
+                    // Restore element states.
+                    foreach (var pair in _elementStates)
+                    {
+                        pair.Value.Restore(pair.Key);
+                    }
 
                     Window.IsPlaced = true;
 
@@ -593,62 +642,91 @@ namespace Jih.Unity.Infrastructure.UIElements
             }
         }
 
-        static VisualElement CreateBlocker()
+        class Blocker : VisualElement
         {
-            VisualElement blocker = new()
+            public Blocker()
             {
-                pickingMode = PickingMode.Position,
-                focusable = false,
-            };
-            blocker.AddToClassList(BlockerClassName);
+                pickingMode = PickingMode.Position;
+                focusable = false;
+                    
+                AddToClassList(BlockerClassName);
 
-            blocker.style.position = Position.Absolute;
-            blocker.style.left = 0f;
-            blocker.style.right = 0f;
-            blocker.style.top = 0f;
-            blocker.style.bottom = 0f;
+                style.position = Position.Absolute;
+                style.left = 0f;
+                style.right = 0f;
+                style.top = 0f;
+                style.bottom = 0f;
 
-            blocker.RegisterCallback<PointerDownEvent>(Block);
-            blocker.RegisterCallback<PointerUpEvent>(Block);
-            blocker.RegisterCallback<WheelEvent>(Block);
-            blocker.RegisterCallback<PointerCancelEvent>(Block);
-            blocker.RegisterCallback<PointerCaptureOutEvent>(Block);
+                RegisterCallback<PointerDownEvent>(Block);
+                RegisterCallback<PointerUpEvent>(Block);
+                RegisterCallback<WheelEvent>(Block);
+                RegisterCallback<PointerCancelEvent>(Block);
+                RegisterCallback<PointerCaptureOutEvent>(Block);
+            }
 
-            return blocker;
+            static void Block(PointerDownEvent e)
+            {
+                e.StopPropagation();
+            }
+            static void Block(PointerUpEvent e)
+            {
+                e.StopPropagation();
+            }
+            static void Block(WheelEvent e)
+            {
+                e.StopPropagation();
+            }
+            static void Block(PointerCancelEvent e)
+            {
+                e.StopPropagation();
+            }
+            static void Block(PointerCaptureOutEvent e)
+            {
+                e.StopPropagation();
+            }
         }
 
-        static void Block(PointerDownEvent e)
+        readonly struct ElementState
         {
-            e.StopPropagation();
-        }
-        static void Block(PointerUpEvent e)
-        {
-            e.StopPropagation();
-        }
-        static void Block(WheelEvent e)
-        {
-            e.StopPropagation();
-        }
-        static void Block(PointerCancelEvent e)
-        {
-            e.StopPropagation();
-        }
-        static void Block(PointerCaptureOutEvent e)
-        {
-            e.StopPropagation();
+            public static ElementState CollectAndInvalidate(VisualElement element)
+            {
+                ElementState result = new(element.pickingMode, element.focusable);
+
+                element.pickingMode = PickingMode.Ignore;
+                element.focusable = false;
+
+                return result;
+            }
+
+            public readonly PickingMode PickingMode;
+            public readonly bool Focusable;
+
+            private ElementState(PickingMode pickingMode, bool focusable)
+            {
+                PickingMode = pickingMode;
+                Focusable = focusable;
+            }
+
+            public readonly void Restore(VisualElement element)
+            {
+                element.pickingMode = PickingMode;
+                element.focusable = Focusable;
+            }
         }
 
         readonly struct WindowState
         {
             public readonly WindowHandler WindowHandler;
             public readonly TitleBarHandler TitleBarHandler;
-            public readonly VisualElement? Blocker;
+            public readonly Blocker? Blocker;
+            public readonly Dictionary<VisualElement, ElementState> ElementStates;
 
-            public WindowState(WindowHandler handler, TitleBarHandler titleBarHandler, VisualElement? blocker)
+            public WindowState(WindowHandler handler, TitleBarHandler titleBarHandler, Blocker? blocker, Dictionary<VisualElement, ElementState> elementStates)
             {
                 WindowHandler = handler;
                 TitleBarHandler = titleBarHandler;
                 Blocker = blocker;
+                ElementStates = elementStates;
             }
         }
 
