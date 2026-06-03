@@ -5,6 +5,8 @@
 
 #nullable enable
 
+#if INFRASTRUCTURE_USE_NEWTONSOFT_JSON
+
 using Jih.Unity.Infrastructure.Deterministics;
 using Jih.Unity.Infrastructure.HexaGrid;
 using Jih.Unity.Infrastructure.Json;
@@ -118,3 +120,5 @@ public class JsonSaveLoadTestScript
         }
     }
 }
+
+#endif
