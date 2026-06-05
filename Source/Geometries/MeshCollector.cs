@@ -783,6 +783,27 @@ namespace Jih.Unity.Infrastructure.Geometries
         }
 
         /// <summary>
+        /// Append CW triangles for a fan.
+        /// </summary>
+        /// <remarks>
+        /// Example with 4-vertices.<br/>
+        /// <c>c</c> means center vertex and <c>1~4</c> means CW vertices on the fan.
+        /// <code>
+        ///   2 - 3
+        ///  / \ / \
+        /// 1 - c - 4
+        /// </code>
+        /// </remarks>
+        public RangeInt AppendFan(in VertexData center, IEnumerable<VertexData> cwVertices)
+        {
+            return AppendNGon_Impl(center, cwVertices, addLast: false, "Fan");
+        }
+        public RangeInt AppendFan<TStructList>(in VertexData center, in TStructList cwVertices) where TStructList : struct, IStructList<VertexData>
+        {
+            return AppendNGon_Impl(center, cwVertices, addLast: false, "Fan");
+        }
+
+        /// <summary>
         /// Append CW triangles for a N-gon.
         /// </summary>
         /// <remarks>
@@ -798,6 +819,16 @@ namespace Jih.Unity.Infrastructure.Geometries
         /// </remarks>
         public RangeInt AppendNGon(in VertexData center, IEnumerable<VertexData> cwVertices)
         {
+            return AppendNGon_Impl(center, cwVertices, addLast: true, "N-gon");
+        }
+        public RangeInt AppendNGon<TStructList>(in VertexData center, in TStructList cwVertices) where TStructList : struct, IStructList<VertexData>
+        {
+            return AppendNGon_Impl(center, cwVertices, addLast: true, "N-gon");
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        RangeInt AppendNGon_Impl(in VertexData center, IEnumerable<VertexData> cwVertices, bool addLast, string context)
+        {
             int centerIndex = _positions.Count;
             AddVertex(center);
 
@@ -811,7 +842,7 @@ namespace Jih.Unity.Infrastructure.Geometries
 
             if (count < 2)
             {
-                throw new ArgumentException($"N-gon's vertices count must be at least 2. Got {count}.", nameof(cwVertices));
+                throw new ArgumentException($"{context}'s vertices count must be at least 2. Got {count}.", nameof(cwVertices));
             }
 
             SubMesh subMesh = CurrentSubMesh;
@@ -822,19 +853,22 @@ namespace Jih.Unity.Infrastructure.Geometries
                 indices.Add(baseIndex + i);
                 indices.Add(baseIndex + i + 1);
             }
-            indices.Add(centerIndex);
-            indices.Add(baseIndex + count - 1);
-            indices.Add(baseIndex);
+            if (addLast)
+            {
+                indices.Add(centerIndex);
+                indices.Add(baseIndex + count - 1);
+                indices.Add(baseIndex);
+            }
 
             return new RangeInt(centerIndex, count + 1);
         }
-
-        public RangeInt AppendNGon<TStructList>(in VertexData center, in TStructList cwVertices) where TStructList : struct, IStructList<VertexData>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        RangeInt AppendNGon_Impl<TStructList>(in VertexData center, in TStructList cwVertices, bool addLast, string context) where TStructList : struct, IStructList<VertexData>
         {
             int count = cwVertices.Count;
             if (count < 2)
             {
-                throw new ArgumentException($"N-gon's vertices count must be at least 2. Got {count}.", nameof(cwVertices));
+                throw new ArgumentException($"{context}'s vertices count must be at least 2. Got {count}.", nameof(cwVertices));
             }
 
             int centerIndex = _positions.Count;
@@ -854,9 +888,12 @@ namespace Jih.Unity.Infrastructure.Geometries
                 indices.Add(baseIndex + i);
                 indices.Add(baseIndex + i + 1);
             }
-            indices.Add(centerIndex);
-            indices.Add(baseIndex + count - 1);
-            indices.Add(baseIndex);
+            if (addLast)
+            {
+                indices.Add(centerIndex);
+                indices.Add(baseIndex + count - 1);
+                indices.Add(baseIndex);
+            }
 
             return new RangeInt(centerIndex, count + 1);
         }
