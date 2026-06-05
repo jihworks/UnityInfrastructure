@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
+using static Codice.Client.Common.EventTracking.TrackFeatureUseEvent.Features.DesktopGUI.Filters;
 
 namespace Jih.Unity.Infrastructure.Geometries
 {
@@ -622,6 +623,26 @@ namespace Jih.Unity.Infrastructure.Geometries
                         throw new NotImplementedException();
                     }
                 }
+            }
+        }
+
+        public void Append(IReadOnlyList<VertexData> vertices, IReadOnlyList<int> indices)
+        {
+            int baseIndex = _positions.Count;
+
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                AddVertex(vertices[i]);
+            }
+
+            SubMesh destSubMesh = CurrentSubMesh;
+
+            List<int> destIndices = destSubMesh._indices;
+            destIndices.SecureCapacity(destIndices.Count + indices.Count);
+
+            for (int x = 0; x < indices.Count; x++)
+            {
+                destIndices.Add(baseIndex + indices[x]);
             }
         }
 
