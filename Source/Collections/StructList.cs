@@ -130,6 +130,39 @@ namespace Jih.Unity.Infrastructure.Collections
             }
         }
 
+        public void Sort()
+        {
+            Sort(Comparer<T>.Default);
+        }
+        public void Sort(IComparer<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+            Sort(comparer.Compare);
+        }
+        public void Sort(Comparison<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+
+            for (int i = 1; i < Count; i++)
+            {
+                T key = _innerArray[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer(_innerArray[j], key) > 0)
+                {
+                    _innerArray[j + 1] = _innerArray[j];
+                    j--;
+                }
+                _innerArray[j + 1] = key;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         readonly void CheckIndex(int index)
         {
@@ -138,6 +171,8 @@ namespace Jih.Unity.Infrastructure.Collections
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
+
+        public const int MaxCapacity = StructArray4<T>.MaxLength;
     }
 
     public struct StructList8<T>
@@ -259,6 +294,39 @@ namespace Jih.Unity.Infrastructure.Collections
             }
         }
 
+        public void Sort()
+        {
+            Sort(Comparer<T>.Default);
+        }
+        public void Sort(IComparer<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+            Sort(comparer.Compare);
+        }
+        public void Sort(Comparison<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+
+            for (int i = 1; i < Count; i++)
+            {
+                T key = _innerArray[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer(_innerArray[j], key) > 0)
+                {
+                    _innerArray[j + 1] = _innerArray[j];
+                    j--;
+                }
+                _innerArray[j + 1] = key;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         readonly void CheckIndex(int index)
         {
@@ -267,6 +335,8 @@ namespace Jih.Unity.Infrastructure.Collections
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
+
+        public const int MaxCapacity = StructArray8<T>.MaxLength;
     }
 
     public struct StructList16<T>
@@ -388,6 +458,39 @@ namespace Jih.Unity.Infrastructure.Collections
             }
         }
 
+        public void Sort()
+        {
+            Sort(Comparer<T>.Default);
+        }
+        public void Sort(IComparer<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+            Sort(comparer.Compare);
+        }
+        public void Sort(Comparison<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+
+            for (int i = 1; i < Count; i++)
+            {
+                T key = _innerArray[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer(_innerArray[j], key) > 0)
+                {
+                    _innerArray[j + 1] = _innerArray[j];
+                    j--;
+                }
+                _innerArray[j + 1] = key;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         readonly void CheckIndex(int index)
         {
@@ -396,6 +499,8 @@ namespace Jih.Unity.Infrastructure.Collections
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
+
+        public const int MaxCapacity = StructArray16<T>.MaxLength;
     }
 
     public struct StructList32<T>
@@ -517,6 +622,39 @@ namespace Jih.Unity.Infrastructure.Collections
             }
         }
 
+        public void Sort()
+        {
+            Sort(Comparer<T>.Default);
+        }
+        public void Sort(IComparer<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+            Sort(comparer.Compare);
+        }
+        public void Sort(Comparison<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+
+            for (int i = 1; i < Count; i++)
+            {
+                T key = _innerArray[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer(_innerArray[j], key) > 0)
+                {
+                    _innerArray[j + 1] = _innerArray[j];
+                    j--;
+                }
+                _innerArray[j + 1] = key;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         readonly void CheckIndex(int index)
         {
@@ -525,5 +663,7 @@ namespace Jih.Unity.Infrastructure.Collections
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
         }
+
+        public const int MaxCapacity = StructArray32<T>.MaxLength;
     }
 }

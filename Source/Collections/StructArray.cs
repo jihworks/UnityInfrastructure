@@ -39,6 +39,39 @@ namespace Jih.Unity.Infrastructure.Collections
             }
         }
 
+        public void Sort()
+        {
+            Sort(Comparer<T>.Default);
+        }
+        public void Sort(IComparer<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+            Sort(comparer.Compare);
+        }
+        public void Sort(Comparison<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+
+            for (int i = 1; i < Length; i++)
+            {
+                T key = this[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer(this[j], key) > 0)
+                {
+                    this[j + 1] = this[j];
+                    j--;
+                }
+                this[j + 1] = key;
+            }
+        }
+
         public readonly override bool Equals(object? obj)
         {
             return obj is StructArray4<T> array && Equals(array);
@@ -102,6 +135,39 @@ namespace Jih.Unity.Infrastructure.Collections
                     case 7: E7 = value; break;
                     default: throw new ArgumentOutOfRangeException(nameof(index));
                 }
+            }
+        }
+
+        public void Sort()
+        {
+            Sort(Comparer<T>.Default);
+        }
+        public void Sort(IComparer<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+            Sort(comparer.Compare);
+        }
+        public void Sort(Comparison<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+
+            for (int i = 1; i < Length; i++)
+            {
+                T key = this[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer(this[j], key) > 0)
+                {
+                    this[j + 1] = this[j];
+                    j--;
+                }
+                this[j + 1] = key;
             }
         }
 
@@ -188,6 +254,39 @@ namespace Jih.Unity.Infrastructure.Collections
                     case 15: E15 = value; break;
                     default: throw new ArgumentOutOfRangeException(nameof(index));
                 }
+            }
+        }
+
+        public void Sort()
+        {
+            Sort(Comparer<T>.Default);
+        }
+        public void Sort(IComparer<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+            Sort(comparer.Compare);
+        }
+        public void Sort(Comparison<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+
+            for (int i = 1; i < Length; i++)
+            {
+                T key = this[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer(this[j], key) > 0)
+                {
+                    this[j + 1] = this[j];
+                    j--;
+                }
+                this[j + 1] = key;
             }
         }
 
@@ -332,6 +431,39 @@ namespace Jih.Unity.Infrastructure.Collections
                     case 31: E31 = value; break;
                     default: throw new ArgumentOutOfRangeException(nameof(index));
                 }
+            }
+        }
+
+        public void Sort()
+        {
+            Sort(Comparer<T>.Default);
+        }
+        public void Sort(IComparer<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+            Sort(comparer.Compare);
+        }
+        public void Sort(Comparison<T> comparer)
+        {
+            if (comparer is null)
+            {
+                throw new ArgumentNullException(nameof(comparer));
+            }
+
+            for (int i = 1; i < Length; i++)
+            {
+                T key = this[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer(this[j], key) > 0)
+                {
+                    this[j + 1] = this[j];
+                    j--;
+                }
+                this[j + 1] = key;
             }
         }
 
