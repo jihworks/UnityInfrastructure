@@ -642,7 +642,13 @@ namespace Jih.Unity.Infrastructure.Geometries
 
             for (int x = 0; x < indices.Count; x++)
             {
-                destIndices.Add(baseIndex + indices[x]);
+                int index = indices[x];
+                if (index < 0 || vertices.Count <= index)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(indices));
+                }
+
+                destIndices.Add(baseIndex + index);
             }
         }
 
@@ -798,6 +804,7 @@ namespace Jih.Unity.Infrastructure.Geometries
         {
             return AppendNGon_Impl(center, cwVertices, addLast: false, "Fan");
         }
+        /// <inheritdoc cref="AppendFan(in VertexData, IEnumerable{VertexData})"/>
         public RangeInt AppendFan<TStructList>(in VertexData center, in TStructList cwVertices) where TStructList : struct, IStructList<VertexData>
         {
             return AppendNGon_Impl(center, cwVertices, addLast: false, "Fan");
@@ -821,6 +828,7 @@ namespace Jih.Unity.Infrastructure.Geometries
         {
             return AppendNGon_Impl(center, cwVertices, addLast: true, "N-gon");
         }
+        /// <inheritdoc cref="AppendNGon(in VertexData, IEnumerable{VertexData})"/>
         public RangeInt AppendNGon<TStructList>(in VertexData center, in TStructList cwVertices) where TStructList : struct, IStructList<VertexData>
         {
             return AppendNGon_Impl(center, cwVertices, addLast: true, "N-gon");
@@ -906,6 +914,13 @@ namespace Jih.Unity.Infrastructure.Geometries
         /// </remarks>
         public Mesh ToTrianglesMesh(bool recalculateNormals, bool recalculateTangents, bool force32BitIndices = false)
         {
+            Mesh mesh = new();
+            ToTrianglesMesh(mesh, recalculateNormals, recalculateTangents, force32BitIndices);
+            return mesh;
+        }
+        /// <inheritdoc cref="ToTrianglesMesh(bool, bool, bool)"/>
+        public void ToTrianglesMesh(Mesh mesh, bool recalculateNormals, bool recalculateTangents, bool force32BitIndices = false)
+        {
             IndexFormat indexFormat;
             if (force32BitIndices)
             {
@@ -916,22 +931,21 @@ namespace Jih.Unity.Infrastructure.Geometries
                 indexFormat = _positions.Count > ushort.MaxValue ? IndexFormat.UInt32 : IndexFormat.UInt16;
             }
 
-            Mesh mesh = new()
-            {
-                indexFormat = indexFormat,
-                subMeshCount = _subMeshes.Count,
-            };
+            mesh.indexFormat = indexFormat;
+            mesh.subMeshCount = _subMeshes.Count;
 
-            mesh.SetVertices(_positions);
+            mesh.SetVertices(_positions, 0, _positions.Count, MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontValidateIndices);
 
             for (int i = 0; i < _subMeshes.Count; i++)
             {
-                mesh.SetIndices(_subMeshes[i]._indices, MeshTopology.Triangles, i);
+                mesh.SetIndices(_subMeshes[i]._indices, MeshTopology.Triangles, i, calculateBounds: false);
             }
+
+            mesh.RecalculateBounds();
 
             if (_colors is not null)
             {
-                mesh.SetColors(_colors);
+                mesh.SetColors(_colors, 0, _colors.Count, MeshUpdateFlags.DontValidateIndices);
             }
 
             for (int i = 0; i < MaxUVSetCount; i++)
@@ -942,12 +956,12 @@ namespace Jih.Unity.Infrastructure.Geometries
                     continue;
                 }
 
-                mesh.SetUVs(i, uv._texCoords);
+                mesh.SetUVs(i, uv._texCoords, 0, uv._texCoords.Count, MeshUpdateFlags.DontValidateIndices);
             }
 
             if (_normals is not null)
             {
-                mesh.SetNormals(_normals);
+                mesh.SetNormals(_normals, 0, _normals.Count, MeshUpdateFlags.DontValidateIndices);
             }
             else if (recalculateNormals)
             {
@@ -956,7 +970,7 @@ namespace Jih.Unity.Infrastructure.Geometries
 
             if (_tangents is not null)
             {
-                mesh.SetTangents(_tangents);
+                mesh.SetTangents(_tangents, 0, _tangents.Count, MeshUpdateFlags.DontValidateIndices);
             }
             else if (recalculateTangents)
             {
@@ -1006,8 +1020,6 @@ namespace Jih.Unity.Infrastructure.Geometries
                     counts.Dispose();
                 }
             }
-
-            return mesh;
         }
 
         public void Clear()
