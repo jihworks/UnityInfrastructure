@@ -30,6 +30,8 @@ namespace Jih.Unity.Infrastructure.Collections
         void Sort();
         void Sort(IComparer<T> comparer);
         void Sort(Comparison<T> comparer);
+
+        void Reverse();
     }
 
     public struct StructList4<T> : IStructList<T>
@@ -181,6 +183,18 @@ namespace Jih.Unity.Infrastructure.Collections
                     j--;
                 }
                 _innerArray[j + 1] = key;
+            }
+        }
+
+        public void Reverse()
+        {
+            int i = 0;
+            int j = Count - 1;
+            while (i < j)
+            {
+                (_innerArray[j], _innerArray[i]) = (_innerArray[i], _innerArray[j]);
+                i++;
+                j--;
             }
         }
 
@@ -348,6 +362,18 @@ namespace Jih.Unity.Infrastructure.Collections
             }
         }
 
+        public void Reverse()
+        {
+            int i = 0;
+            int j = Count - 1;
+            while (i < j)
+            {
+                (_innerArray[j], _innerArray[i]) = (_innerArray[i], _innerArray[j]);
+                i++;
+                j--;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         readonly void CheckIndex(int index)
         {
@@ -512,6 +538,18 @@ namespace Jih.Unity.Infrastructure.Collections
             }
         }
 
+        public void Reverse()
+        {
+            int i = 0;
+            int j = Count - 1;
+            while (i < j)
+            {
+                (_innerArray[j], _innerArray[i]) = (_innerArray[i], _innerArray[j]);
+                i++;
+                j--;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         readonly void CheckIndex(int index)
         {
@@ -673,6 +711,18 @@ namespace Jih.Unity.Infrastructure.Collections
                     j--;
                 }
                 _innerArray[j + 1] = key;
+            }
+        }
+
+        public void Reverse()
+        {
+            int i = 0;
+            int j = Count - 1;
+            while (i < j)
+            {
+                (_innerArray[j], _innerArray[i]) = (_innerArray[i], _innerArray[j]);
+                i++;
+                j--;
             }
         }
 

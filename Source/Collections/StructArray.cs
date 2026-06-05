@@ -19,6 +19,8 @@ namespace Jih.Unity.Infrastructure.Collections
         void Sort();
         void Sort(IComparer<T> comparer);
         void Sort(Comparison<T> comparer);
+
+        void Reverse();
     }
 
     public struct StructArray4<T> : IStructArray<T>, IEquatable<StructArray4<T>>
@@ -80,6 +82,18 @@ namespace Jih.Unity.Infrastructure.Collections
                     j--;
                 }
                 this[j + 1] = key;
+            }
+        }
+
+        public void Reverse()
+        {
+            int i = 0;
+            int j = Length - 1;
+            while (i < j)
+            {
+                (this[j], this[i]) = (this[i], this[j]);
+                i++;
+                j--;
             }
         }
 
@@ -179,6 +193,18 @@ namespace Jih.Unity.Infrastructure.Collections
                     j--;
                 }
                 this[j + 1] = key;
+            }
+        }
+
+        public void Reverse()
+        {
+            int i = 0;
+            int j = Length - 1;
+            while (i < j)
+            {
+                (this[j], this[i]) = (this[i], this[j]);
+                i++;
+                j--;
             }
         }
 
@@ -298,6 +324,18 @@ namespace Jih.Unity.Infrastructure.Collections
                     j--;
                 }
                 this[j + 1] = key;
+            }
+        }
+
+        public void Reverse()
+        {
+            int i = 0;
+            int j = Length - 1;
+            while (i < j)
+            {
+                (this[j], this[i]) = (this[i], this[j]);
+                i++;
+                j--;
             }
         }
 
@@ -475,6 +513,18 @@ namespace Jih.Unity.Infrastructure.Collections
                     j--;
                 }
                 this[j + 1] = key;
+            }
+        }
+
+        public void Reverse()
+        {
+            int i = 0;
+            int j = Length - 1;
+            while (i < j)
+            {
+                (this[j], this[i]) = (this[i], this[j]);
+                i++;
+                j--;
             }
         }
 
