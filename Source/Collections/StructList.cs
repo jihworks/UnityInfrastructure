@@ -11,9 +11,30 @@ using System.Runtime.CompilerServices;
 
 namespace Jih.Unity.Infrastructure.Collections
 {
-    public struct StructList4<T>
+    public interface IStructList<T>
     {
-        public int Count { get; private set; }
+        int Count { get; }
+        int Capacity { get; }
+
+        T this[int index] { get; set; }
+
+        void Insert(int index, T item);
+        void Add(T item);
+        bool Remove(T item);
+        void RemoveAt(int index);
+        void Clear();
+        bool Contains(T item);
+        int IndexOf(T item);
+        void CopyTo(T[] array, int arrayIndex);
+
+        void Sort();
+        void Sort(IComparer<T> comparer);
+        void Sort(Comparison<T> comparer);
+    }
+
+    public struct StructList4<T> : IStructList<T>
+    {
+        public int Count { readonly get; private set; }
 
         public readonly int Capacity => _innerArray.Length;
 
@@ -175,9 +196,9 @@ namespace Jih.Unity.Infrastructure.Collections
         public const int MaxCapacity = StructArray4<T>.MaxLength;
     }
 
-    public struct StructList8<T>
+    public struct StructList8<T> : IStructList<T>
     {
-        public int Count { get; private set; }
+        public int Count { readonly get; private set; }
 
         public readonly int Capacity => _innerArray.Length;
 
@@ -339,9 +360,9 @@ namespace Jih.Unity.Infrastructure.Collections
         public const int MaxCapacity = StructArray8<T>.MaxLength;
     }
 
-    public struct StructList16<T>
+    public struct StructList16<T> : IStructList<T>
     {
-        public int Count { get; private set; }
+        public int Count { readonly get; private set; }
 
         public readonly int Capacity => _innerArray.Length;
 
@@ -503,9 +524,9 @@ namespace Jih.Unity.Infrastructure.Collections
         public const int MaxCapacity = StructArray16<T>.MaxLength;
     }
 
-    public struct StructList32<T>
+    public struct StructList32<T> : IStructList<T>
     {
-        public int Count { get; private set; }
+        public int Count { readonly get; private set; }
 
         public readonly int Capacity => _innerArray.Length;
 

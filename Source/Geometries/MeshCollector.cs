@@ -5,6 +5,7 @@
 
 #nullable enable
 
+using Jih.Unity.Infrastructure.Collections;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -810,7 +811,39 @@ namespace Jih.Unity.Infrastructure.Geometries
 
             if (count < 2)
             {
-                throw new ArgumentException($"N-gon's vertices count must not be less than 2. Got {count}.", nameof(cwVertices));
+                throw new ArgumentException($"N-gon's vertices count must be at least 2. Got {count}.", nameof(cwVertices));
+            }
+
+            SubMesh subMesh = CurrentSubMesh;
+            List<int> indices = subMesh._indices;
+            for (int i = 0; i < count - 1; i++)
+            {
+                indices.Add(centerIndex);
+                indices.Add(baseIndex + i);
+                indices.Add(baseIndex + i + 1);
+            }
+            indices.Add(centerIndex);
+            indices.Add(baseIndex + count - 1);
+            indices.Add(baseIndex);
+
+            return new RangeInt(centerIndex, count + 1);
+        }
+
+        public RangeInt AppendNGon<TStructList>(in VertexData center, in TStructList cwVertices) where TStructList : struct, IStructList<VertexData>
+        {
+            int count = cwVertices.Count;
+            if (count < 2)
+            {
+                throw new ArgumentException($"N-gon's vertices count must be at least 2. Got {count}.", nameof(cwVertices));
+            }
+
+            int centerIndex = _positions.Count;
+            AddVertex(center);
+
+            int baseIndex = _positions.Count;
+            for (int i = 0; i < count; i++)
+            {
+                AddVertex(cwVertices[i]);
             }
 
             SubMesh subMesh = CurrentSubMesh;

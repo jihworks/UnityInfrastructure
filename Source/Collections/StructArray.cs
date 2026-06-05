@@ -10,7 +10,18 @@ using System.Collections.Generic;
 
 namespace Jih.Unity.Infrastructure.Collections
 {
-    public struct StructArray4<T> : IEquatable<StructArray4<T>>
+    public interface IStructArray<T>
+    {
+        int Length { get; }
+
+        T this[int index] { get; set; }
+
+        void Sort();
+        void Sort(IComparer<T> comparer);
+        void Sort(Comparison<T> comparer);
+    }
+
+    public struct StructArray4<T> : IStructArray<T>, IEquatable<StructArray4<T>>
     {
         public readonly int Length => MaxLength;
 
@@ -101,7 +112,7 @@ namespace Jih.Unity.Infrastructure.Collections
         public const int MaxLength = 4;
     }
 
-    public struct StructArray8<T> : IEquatable<StructArray8<T>>
+    public struct StructArray8<T> : IStructArray<T>, IEquatable<StructArray8<T>>
     {
         public readonly int Length => MaxLength;
 
@@ -204,7 +215,7 @@ namespace Jih.Unity.Infrastructure.Collections
         public const int MaxLength = 8;
     }
 
-    public struct StructArray16<T> : IEquatable<StructArray16<T>>
+    public struct StructArray16<T> : IStructArray<T>, IEquatable<StructArray16<T>>
     {
         public readonly int Length => MaxLength;
 
@@ -348,7 +359,7 @@ namespace Jih.Unity.Infrastructure.Collections
         public const int MaxLength = 16;
     }
 
-    public struct StructArray32<T> : IEquatable<StructArray32<T>>
+    public struct StructArray32<T> : IStructArray<T>, IEquatable<StructArray32<T>>
     {
         public readonly int Length => MaxLength;
 
