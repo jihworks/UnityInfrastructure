@@ -921,6 +921,8 @@ namespace Jih.Unity.Infrastructure.Geometries
         /// <inheritdoc cref="ToTrianglesMesh(bool, bool, bool)"/>
         public void ToTrianglesMesh(Mesh mesh, bool recalculateNormals, bool recalculateTangents, bool force32BitIndices = false)
         {
+            mesh.Clear(keepVertexLayout: true);
+
             IndexFormat indexFormat;
             if (force32BitIndices)
             {
