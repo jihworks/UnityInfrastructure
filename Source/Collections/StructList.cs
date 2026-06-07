@@ -56,6 +56,11 @@ namespace Jih.Unity.Infrastructure.Collections
 
         StructArray4<T> _innerArray;
 
+        public readonly StructArray4<T> GetInnerArray()
+        {
+            return _innerArray;
+        }
+
         public void Insert(int index, T item)
         {
             if (index < 0 || Count < index)
@@ -231,6 +236,11 @@ namespace Jih.Unity.Infrastructure.Collections
         }
 
         StructArray8<T> _innerArray;
+
+        public readonly StructArray8<T> GetInnerArray()
+        {
+            return _innerArray;
+        }
 
         public void Insert(int index, T item)
         {
@@ -408,6 +418,11 @@ namespace Jih.Unity.Infrastructure.Collections
 
         StructArray16<T> _innerArray;
 
+        public readonly StructArray16<T> GetInnerArray()
+        {
+            return _innerArray;
+        }
+
         public void Insert(int index, T item)
         {
             if (index < 0 || Count < index)
@@ -583,6 +598,11 @@ namespace Jih.Unity.Infrastructure.Collections
         }
 
         StructArray32<T> _innerArray;
+
+        public readonly StructArray32<T> GetInnerArray()
+        {
+            return _innerArray;
+        }
 
         public void Insert(int index, T item)
         {
