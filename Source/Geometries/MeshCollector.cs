@@ -43,7 +43,7 @@ namespace Jih.Unity.Infrastructure.Geometries
 
             int vertexCount = mesh.vertexCount;
 
-            List<Vector3> positions = new(vertexCount);
+            AttributeCollection<Vector3> positions = new(vertexCount);
             mesh.GetVertices(positions);
 
             if (positions.Count < vertexCount)
@@ -62,10 +62,10 @@ namespace Jih.Unity.Infrastructure.Geometries
                 }
             }
 
-            List<Color>? colors = null;
+            AttributeCollection<Color>? colors = null;
             if (additionalAttributes.Has(AdditionalAttributes.Color))
             {
-                colors = new List<Color>(vertexCount);
+                colors = new AttributeCollection<Color>(vertexCount);
                 mesh.GetColors(colors);
 
                 if (colors.Count < vertexCount)
@@ -101,7 +101,7 @@ namespace Jih.Unity.Infrastructure.Geometries
                 UVSet uvSet = new(vertexCount);
                 uvSets[u] = uvSet;
 
-                List<Vector2> texCoords = uvSet._texCoords;
+                AttributeCollection<Vector2> texCoords = uvSet._texCoords;
                 mesh.GetUVs(u, texCoords);
 
                 if (texCoords.Count < vertexCount)
@@ -125,10 +125,10 @@ namespace Jih.Unity.Infrastructure.Geometries
                 }
             }
 
-            List<Vector3>? normals = null;
+            AttributeCollection<Vector3>? normals = null;
             if (additionalAttributes.Has(AdditionalAttributes.Normal))
             {
-                normals = new List<Vector3>(vertexCount);
+                normals = new AttributeCollection<Vector3>(vertexCount);
                 mesh.GetNormals(normals);
 
                 if (normals.Count < vertexCount)
@@ -152,10 +152,10 @@ namespace Jih.Unity.Infrastructure.Geometries
                 }
             }
 
-            List<Vector4>? tangents = null;
+            AttributeCollection<Vector4>? tangents = null;
             if (additionalAttributes.Has(AdditionalAttributes.Tangent))
             {
-                tangents = new List<Vector4>(vertexCount);
+                tangents = new AttributeCollection<Vector4>(vertexCount);
                 mesh.GetTangents(tangents);
 
                 if (tangents.Count < vertexCount)
@@ -179,10 +179,10 @@ namespace Jih.Unity.Infrastructure.Geometries
                 }
             }
 
-            List<IReadOnlyList<BoneWeight1>>? boneWeights = null;
+            AttributeCollection<IReadOnlyList<BoneWeight1>>? boneWeights = null;
             if (additionalAttributes.Has(AdditionalAttributes.BoneWeight))
             {
-                boneWeights = new List<IReadOnlyList<BoneWeight1>>(vertexCount);
+                boneWeights = new AttributeCollection<IReadOnlyList<BoneWeight1>>(vertexCount);
 
                 NativeArray<byte> srcCounts = mesh.GetBonesPerVertex();
                 NativeArray<BoneWeight1> srcWeights = mesh.GetAllBoneWeights();
@@ -253,23 +253,23 @@ namespace Jih.Unity.Infrastructure.Geometries
 
         public int VertexCount => _positions.Count;
 
-        readonly List<Vector3> _positions;
-        public IReadOnlyList<Vector3> Positions => _positions;
+        readonly AttributeCollection<Vector3> _positions;
+        public IAttributeCollection<Vector3> Positions => _positions;
 
-        readonly List<Color>? _colors;
-        public IReadOnlyList<Color>? Colors => _colors;
+        readonly AttributeCollection<Color>? _colors;
+        public IAttributeCollection<Color>? Colors => _colors;
 
         readonly UVSet?[] _uvSets = new UVSet?[MaxUVSetCount];
         public IReadOnlyList<UVSet?> UVSets => _uvSets;
 
-        readonly List<Vector3>? _normals;
-        public IReadOnlyList<Vector3>? Normals => _normals;
+        readonly AttributeCollection<Vector3>? _normals;
+        public IAttributeCollection<Vector3>? Normals => _normals;
 
-        readonly List<Vector4>? _tangents;
-        public IReadOnlyList<Vector4>? Tangents => _tangents;
+        readonly AttributeCollection<Vector4>? _tangents;
+        public IAttributeCollection<Vector4>? Tangents => _tangents;
 
-        readonly List<IReadOnlyList<BoneWeight1>>? _boneWeightLists;
-        public IReadOnlyList<IReadOnlyList<BoneWeight1>>? BoneWeightLists => _boneWeightLists;
+        readonly AttributeCollection<IReadOnlyList<BoneWeight1>>? _boneWeightLists;
+        public IAttributeCollection<IReadOnlyList<BoneWeight1>>? BoneWeightLists => _boneWeightLists;
 
         readonly List<SubMesh> _subMeshes = new();
         public IReadOnlyList<SubMesh> SubMeshes => _subMeshes;
@@ -277,7 +277,7 @@ namespace Jih.Unity.Infrastructure.Geometries
         public int CurrentSubMeshIndex { get; private set; }
         public SubMesh CurrentSubMesh => _subMeshes[CurrentSubMeshIndex];
 
-        private MeshCollector(AdditionalAttributes additionalAttributes, List<Vector3> positions, List<Color>? colors, UVSet?[] uvSets, List<Vector3>? normals, List<Vector4>? tangents, List<IReadOnlyList<BoneWeight1>>? boneWeightLists, List<SubMesh> subMeshes, int currentSubMeshIndex)
+        private MeshCollector(AdditionalAttributes additionalAttributes, AttributeCollection<Vector3> positions, AttributeCollection<Color>? colors, UVSet?[] uvSets, AttributeCollection<Vector3>? normals, AttributeCollection<Vector4>? tangents, AttributeCollection<IReadOnlyList<BoneWeight1>>? boneWeightLists, List<SubMesh> subMeshes, int currentSubMeshIndex)
         {
             AdditionalAttributes = additionalAttributes;
             _positions = positions;
@@ -311,10 +311,10 @@ namespace Jih.Unity.Infrastructure.Geometries
 
             AdditionalAttributes = additionalAttributes;
 
-            _positions = new List<Vector3>(vertexCapacity);
+            _positions = new AttributeCollection<Vector3>(vertexCapacity);
             if (additionalAttributes.Has(AdditionalAttributes.Color))
             {
-                _colors = new List<Color>(vertexCapacity);
+                _colors = new AttributeCollection<Color>(vertexCapacity);
             }
             for (int i = 0; i < MaxUVSetCount; i++)
             {
@@ -327,15 +327,15 @@ namespace Jih.Unity.Infrastructure.Geometries
             }
             if (additionalAttributes.Has(AdditionalAttributes.Normal))
             {
-                _normals = new List<Vector3>(vertexCapacity);
+                _normals = new AttributeCollection<Vector3>(vertexCapacity);
             }
             if (additionalAttributes.Has(AdditionalAttributes.Tangent))
             {
-                _tangents = new List<Vector4>(vertexCapacity);
+                _tangents = new AttributeCollection<Vector4>(vertexCapacity);
             }
             if (additionalAttributes.Has(AdditionalAttributes.BoneWeight))
             {
-                _boneWeightLists = new List<IReadOnlyList<BoneWeight1>>(vertexCapacity);
+                _boneWeightLists = new AttributeCollection<IReadOnlyList<BoneWeight1>>(vertexCapacity);
             }
 
             for (int i = 0; i < subMeshCount; i++)
@@ -376,120 +376,6 @@ namespace Jih.Unity.Infrastructure.Geometries
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
             _subMeshes.RemoveAt(index);
-        }
-
-        public void EditPositions(int startIndex, int count, EditDelegate<Vector3> edit)
-        {
-            EditImpl("positions", _positions, startIndex, count, edit, null);
-        }
-        public void EditColors(int startIndex, int count, EditDelegate<Color> edit)
-        {
-            EditImpl("colors", _colors, startIndex, count, edit, null);
-        }
-        public void EditNormals(int startIndex, int count, EditDelegate<Vector3> edit)
-        {
-            EditImpl("normals", _normals, startIndex, count, edit, null);
-        }
-        public void EditTangents(int startIndex, int count, EditDelegate<Vector4> edit)
-        {
-            EditImpl("tangents", _tangents, startIndex, count, edit, null);
-        }
-        public void EditBoneWeights(int startIndex, int count, EditDelegate<IReadOnlyList<BoneWeight1>> edit)
-        {
-            EditImpl("bone weights", _boneWeightLists, startIndex, count, edit, list => list ?? Array.Empty<BoneWeight1>());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void EditImpl<T>(string context, List<T>? targetList, int index, int count, EditDelegate<T> edit, Func<T, T>? secureValue)
-        {
-            if (targetList is null)
-            {
-                throw new InvalidOperationException($"Cannot edit {context}. Because it is not collecting attribute.");
-            }
-            if (index < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
-            if (count < 0 || targetList.Count < index + count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count));
-            }
-
-            for (int i = 0; i < count; i++)
-            {
-                int currIndex = index + i;
-                if (!edit(currIndex, targetList[currIndex], out T result))
-                {
-                    break;
-                }
-                targetList[currIndex] = secureValue is not null ? secureValue(result) : result;
-            }
-        }
-
-        public void EditPositions(Func<Vector3, Vector3> edit)
-        {
-            EditPositions(0, _positions.Count, edit);
-        }
-        public void EditColors(Func<Color, Color> edit)
-        {
-            EditColors(0, _positions.Count, edit);
-        }
-        public void EditNormals(Func<Vector3, Vector3> edit)
-        {
-            EditNormals(0, _positions.Count, edit);
-        }
-        public void EditTangents(Func<Vector4, Vector4> edit)
-        {
-            EditTangents(0, _positions.Count, edit);
-        }
-        public void EditBoneWeights(Func<IReadOnlyList<BoneWeight1>, IReadOnlyList<BoneWeight1>> edit)
-        {
-            EditBoneWeights(0, _positions.Count, edit);
-        }
-
-        public void EditPositions(int startIndex, int count, Func<Vector3, Vector3> edit)
-        {
-            EditImpl("positions", _positions, startIndex, count, edit, null);
-        }
-        public void EditColors(int startIndex, int count, Func<Color, Color> edit)
-        {
-            EditImpl("colors", _colors, startIndex, count, edit, null);
-        }
-        public void EditNormals(int startIndex, int count, Func<Vector3, Vector3> edit)
-        {
-            EditImpl("normals", _normals, startIndex, count, edit, null);
-        }
-        public void EditTangents(int startIndex, int count, Func<Vector4, Vector4> edit)
-        {
-            EditImpl("tangents", _tangents, startIndex, count, edit, null);
-        }
-        public void EditBoneWeights(int startIndex, int count, Func<IReadOnlyList<BoneWeight1>, IReadOnlyList<BoneWeight1>> edit)
-        {
-            EditImpl("bone weights", _boneWeightLists, startIndex, count, edit, list => list ?? Array.Empty<BoneWeight1>());
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void EditImpl<T>(string context, List<T>? targetList, int index, int count, Func<T, T> edit, Func<T, T>? secureValue)
-        {
-            if (targetList is null)
-            {
-                throw new InvalidOperationException($"Cannot edit {context}. Because it is not collecting attribute.");
-            }
-            if (index < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
-            if (count < 0 || targetList.Count < index + count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(count));
-            }
-
-            for (int i = 0; i < count; i++)
-            {
-                int currIndex = index + i;
-                T result = edit(targetList[currIndex]);
-                targetList[currIndex] = secureValue is not null ? secureValue(result) : result;
-            }
         }
 
         public void Append(MeshCollector other, AppendSubMeshStrategy subMeshStrategy = AppendSubMeshStrategy.MatchedOnly, VertexData fallback = default)
@@ -1077,28 +963,26 @@ namespace Jih.Unity.Infrastructure.Geometries
             _boneWeightLists?.Add(vertexData.BoneWeightList ?? Array.Empty<BoneWeight1>());
         }
 
+        public interface IAttributeCollection<T> : IReadOnlyList<T>
+        {
+            new T this[int index] { get; set; }
+        }
+
+        internal class AttributeCollection<T> : List<T>, IAttributeCollection<T>
+        {
+            public AttributeCollection(int capacity) : base(capacity)
+            {
+            }
+        }
+
         public class UVSet
         {
-            internal readonly List<Vector2> _texCoords;
-            public IReadOnlyList<Vector2> TexCoords => _texCoords;
+            internal readonly AttributeCollection<Vector2> _texCoords;
+            public IAttributeCollection<Vector2> TexCoords => _texCoords;
 
             internal UVSet(int capacity)
             {
-                _texCoords = new List<Vector2>(capacity);
-            }
-
-            public void EditTexCoords(int startIndex, int count, EditDelegate<Vector2> edit)
-            {
-                EditImpl("tex coords", _texCoords, startIndex, count, edit, null);
-            }
-
-            public void EditTexCoords(Func<Vector2, Vector2> edit)
-            {
-                EditTexCoords(0, _texCoords.Count, edit);
-            }
-            public void EditTexCoords(int startIndex, int count, Func<Vector2, Vector2> edit)
-            {
-                EditImpl("tex coords", _texCoords, startIndex, count, edit, null);
+                _texCoords = new AttributeCollection<Vector2>(capacity);
             }
 
             public void SecureTexCoordCapacity(int desiredCapacity)
