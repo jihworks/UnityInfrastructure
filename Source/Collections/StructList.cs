@@ -168,7 +168,19 @@ namespace Jih.Unity.Infrastructure.Collections
             {
                 throw new ArgumentNullException(nameof(comparer));
             }
-            Sort(comparer.Compare);
+
+            for (int i = 1; i < Count; i++)
+            {
+                T key = _innerArray[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer.Compare(_innerArray[j], key) > 0)
+                {
+                    _innerArray[j + 1] = _innerArray[j];
+                    j--;
+                }
+                _innerArray[j + 1] = key;
+            }
         }
         public void Sort(Comparison<T> comparer)
         {
@@ -349,7 +361,19 @@ namespace Jih.Unity.Infrastructure.Collections
             {
                 throw new ArgumentNullException(nameof(comparer));
             }
-            Sort(comparer.Compare);
+
+            for (int i = 1; i < Count; i++)
+            {
+                T key = _innerArray[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer.Compare(_innerArray[j], key) > 0)
+                {
+                    _innerArray[j + 1] = _innerArray[j];
+                    j--;
+                }
+                _innerArray[j + 1] = key;
+            }
         }
         public void Sort(Comparison<T> comparer)
         {
@@ -530,7 +554,19 @@ namespace Jih.Unity.Infrastructure.Collections
             {
                 throw new ArgumentNullException(nameof(comparer));
             }
-            Sort(comparer.Compare);
+
+            for (int i = 1; i < Count; i++)
+            {
+                T key = _innerArray[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer.Compare(_innerArray[j], key) > 0)
+                {
+                    _innerArray[j + 1] = _innerArray[j];
+                    j--;
+                }
+                _innerArray[j + 1] = key;
+            }
         }
         public void Sort(Comparison<T> comparer)
         {
@@ -711,7 +747,19 @@ namespace Jih.Unity.Infrastructure.Collections
             {
                 throw new ArgumentNullException(nameof(comparer));
             }
-            Sort(comparer.Compare);
+
+            for (int i = 1; i < Count; i++)
+            {
+                T key = _innerArray[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer.Compare(_innerArray[j], key) > 0)
+                {
+                    _innerArray[j + 1] = _innerArray[j];
+                    j--;
+                }
+                _innerArray[j + 1] = key;
+            }
         }
         public void Sort(Comparison<T> comparer)
         {

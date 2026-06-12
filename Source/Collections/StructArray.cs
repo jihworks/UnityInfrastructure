@@ -62,7 +62,19 @@ namespace Jih.Unity.Infrastructure.Collections
             {
                 throw new ArgumentNullException(nameof(comparer));
             }
-            Sort(comparer.Compare);
+
+            for (int i = 1; i < Length; i++)
+            {
+                T key = this[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer.Compare(this[j], key) > 0)
+                {
+                    this[j + 1] = this[j];
+                    j--;
+                }
+                this[j + 1] = key;
+            }
         }
         public void Sort(Comparison<T> comparer)
         {
@@ -173,7 +185,19 @@ namespace Jih.Unity.Infrastructure.Collections
             {
                 throw new ArgumentNullException(nameof(comparer));
             }
-            Sort(comparer.Compare);
+
+            for (int i = 1; i < Length; i++)
+            {
+                T key = this[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer.Compare(this[j], key) > 0)
+                {
+                    this[j + 1] = this[j];
+                    j--;
+                }
+                this[j + 1] = key;
+            }
         }
         public void Sort(Comparison<T> comparer)
         {
@@ -304,7 +328,19 @@ namespace Jih.Unity.Infrastructure.Collections
             {
                 throw new ArgumentNullException(nameof(comparer));
             }
-            Sort(comparer.Compare);
+
+            for (int i = 1; i < Length; i++)
+            {
+                T key = this[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer.Compare(this[j], key) > 0)
+                {
+                    this[j + 1] = this[j];
+                    j--;
+                }
+                this[j + 1] = key;
+            }
         }
         public void Sort(Comparison<T> comparer)
         {
@@ -493,7 +529,19 @@ namespace Jih.Unity.Infrastructure.Collections
             {
                 throw new ArgumentNullException(nameof(comparer));
             }
-            Sort(comparer.Compare);
+
+            for (int i = 1; i < Length; i++)
+            {
+                T key = this[i];
+                int j = i - 1;
+
+                while (j >= 0 && comparer.Compare(this[j], key) > 0)
+                {
+                    this[j + 1] = this[j];
+                    j--;
+                }
+                this[j + 1] = key;
+            }
         }
         public void Sort(Comparison<T> comparer)
         {
