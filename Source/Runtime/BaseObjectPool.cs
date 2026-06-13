@@ -139,7 +139,7 @@ namespace Jih.Unity.Infrastructure.Runtime
         /// <summary>
         /// Returns multiple objects to the pool. If any object is already in the pool, it will be ignored.
         /// </summary>
-        public void ReleaseMany(IEnumerable<T> items)
+        public void ReleaseMany(IReadOnlyList<T> items)
         {
             if (items is null)
             {
@@ -150,8 +150,9 @@ namespace Jih.Unity.Infrastructure.Runtime
             {
                 lock (_lock)
                 {
-                    foreach (var item in items)
+                    for (int i = 0; i < items.Count; i++)
                     {
+                        T item = items[i];
                         if (item is not null)
                         {
                             Release_Impl(item);
@@ -161,13 +162,50 @@ namespace Jih.Unity.Infrastructure.Runtime
             }
             else
             {
-                foreach (var item in items)
+                for (int i = 0; i < items.Count; i++)
                 {
+                    T item = items[i];
                     if (item is not null)
                     {
                         Release_Impl(item);
                     }
                 }
+            }
+        }
+
+        public void ReleaseMany<TEnumerator>(in TEnumerator enumerator) where TEnumerator : struct, IEnumerator<T>
+        {
+            try
+            {
+                if (_lock is not null)
+                {
+                    lock (_lock)
+                    {
+                        while (enumerator.MoveNext())
+                        {
+                            T item = enumerator.Current;
+                            if (item is not null)
+                            {
+                                Release_Impl(item);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        T item = enumerator.Current;
+                        if (item is not null)
+                        {
+                            Release_Impl(item);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                enumerator.Dispose();
             }
         }
 

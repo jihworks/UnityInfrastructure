@@ -141,7 +141,7 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
         {
             _pendingCellUpdateCollisions.Clear();
 
-            _collisionListPool.ReleaseMany(_cells.Values);
+            _collisionListPool.ReleaseMany(_cells.Values.GetEnumerator());
             _cells.Clear();
 
             foreach (var collision in _collisions)
@@ -150,7 +150,7 @@ namespace Jih.Unity.Infrastructure.Collisions.Common3D
             }
             _collisions.Clear();
 
-            _cellsListPool.ReleaseMany(_cellsMap.Values);
+            _cellsListPool.ReleaseMany(_cellsMap.Values.GetEnumerator());
             _cellsMap.Clear();
         }
 
