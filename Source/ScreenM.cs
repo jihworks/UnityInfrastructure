@@ -157,6 +157,12 @@ namespace Jih.Unity.Infrastructure
             M31 = m31; M32 = m32;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly ScreenM SafeInvert()
+        {
+            return SafeInvert(this);
+        }
+
         public readonly bool Decompose(out ScreenV translation, out float rotation, out ScreenV scale)
         {
             translation = new ScreenV(M31, M32);
