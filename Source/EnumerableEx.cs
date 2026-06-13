@@ -64,9 +64,15 @@ namespace Jih.Unity.Infrastructure
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsValidIndex(int index, int count)
+        {
+            return 0 <= index && index <= count;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsValidIndex<T>(this List<T> collection, int index)
         {
-            return 0 <= index && index < collection.Count;
+            return IsValidIndex(index, collection.Count);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
