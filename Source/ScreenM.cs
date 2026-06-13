@@ -130,16 +130,57 @@ namespace Jih.Unity.Infrastructure
         [UnityEngine.SerializeField] public float M31;
         [UnityEngine.SerializeField] public float M32;
 
-        public readonly bool IsIdentity =>
-            M11 == 1f && M22 == 1f &&
-            M12 == 0f && M21 == 0f &&
-            M31 == 0f && M32 == 0f;
+        public readonly bool IsIdentity
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => M11 == 1f && M22 == 1f &&
+                   M12 == 0f && M21 == 0f &&
+                   M31 == 0f && M32 == 0f;
+        }
+
+        public ScreenV Translation
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            readonly get => new(M31, M32);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set
+            {
+                M31 = value.X;
+                M32 = value.Y;
+            }
+        }
 
         public ScreenM(float m11, float m12, float m21, float m22, float m31, float m32)
         {
             M11 = m11; M12 = m12;
             M21 = m21; M22 = m22;
             M31 = m31; M32 = m32;
+        }
+
+        public readonly bool Decompose(out ScreenV translation, out float rotation, out ScreenV scale)
+        {
+            translation = new ScreenV(M31, M32);
+
+            float scaleX = MathF.Sqrt(M11 * M11 + M12 * M12);
+            float scaleY = MathF.Sqrt(M21 * M21 + M22 * M22);
+
+            if (scaleX.IsNearlyZero() || scaleY.IsNearlyZero())
+            {
+                scale = new ScreenV(scaleX, scaleY);
+                rotation = 0f;
+                return false;
+            }
+
+            float det = M11 * M22 - M12 * M21;
+            if (det < 0f)
+            {
+                scaleY = -scaleY;
+            }
+
+            scale = new ScreenV(scaleX, scaleY);
+            rotation = MathF.Atan2(M12, M11);
+
+            return true;
         }
 
         public readonly override bool Equals(object? obj)
