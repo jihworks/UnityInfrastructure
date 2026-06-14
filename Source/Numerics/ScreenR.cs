@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Jih.Unity.Infrastructure
+namespace Jih.Unity.Infrastructure.Numerics
 {
     /// <seealso cref="ScreenSpaceConvert"/>
     /// <inheritdoc cref="ScreenSpaceConvert"/>

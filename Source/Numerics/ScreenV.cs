@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Jih.Unity.Infrastructure
+namespace Jih.Unity.Infrastructure.Numerics
 {
     /// <seealso cref="ScreenSpaceConvert"/>
     /// <inheritdoc cref="ScreenSpaceConvert"/>
@@ -214,15 +214,29 @@ namespace Jih.Unity.Infrastructure
 
         /// <inheritdoc cref="MathEx.RadiusVector(float)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ScreenV RadiusVector(float radians)
+        public static ScreenV RadiusVectorRadians(float radians)
         {
             return new ScreenV(MathF.Cos(radians), MathF.Sin(radians));
         }
+        /// <inheritdoc cref="RadiusVectorRadians(float)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScreenV RadiusVectorDegrees(float degrees)
+        {
+            return RadiusVectorRadians(degrees.ToRadians());
+        }
+
         /// <inheritdoc cref="MathEx.RadiusRadians(UnityEngine.Vector2)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float RadiusRadians(ScreenV v)
         {
             return MathF.Atan2(v.Y, v.X);
+        }
+        /// <returns>Degrees</returns>
+        /// <inheritdoc cref="MathEx.RadiusRadians(UnityEngine.Vector2)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float RadiusDegrees(ScreenV v)
+        {
+            return RadiusRadians(v).ToDegrees();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -237,6 +251,11 @@ namespace Jih.Unity.Infrastructure
             a = MathF.Sqrt(a);
             float b = Math.Clamp(Dot(from, to) / a, -1f, 1f);
             return MathF.Acos(b);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float InterDegrees(ScreenV from, ScreenV to)
+        {
+            return InterRadians(from, to).ToDegrees();
         }
 
         public static ScreenV Up => new(0f, -1f);
@@ -382,11 +401,22 @@ namespace Jih.Unity.Infrastructure
         {
             return RadiusRadians(this);
         }
+        /// <inheritdoc cref="RadiusDegrees(ScreenV)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly float RadiusDegrees()
+        {
+            return RadiusDegrees(this);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly float InterRadians(ScreenV to)
         {
             return InterRadians(this, to);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly float InterDegrees(ScreenV to)
+        {
+            return InterDegrees(this, to);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

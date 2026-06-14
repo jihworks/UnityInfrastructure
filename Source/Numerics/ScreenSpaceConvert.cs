@@ -8,7 +8,7 @@
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Jih.Unity.Infrastructure
+namespace Jih.Unity.Infrastructure.Numerics
 {
     /// <summary>
     /// * Standard Computer Graphics Screen Coordinate Space:<br/>
