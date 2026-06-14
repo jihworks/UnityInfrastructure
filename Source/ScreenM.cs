@@ -12,6 +12,8 @@ using System.Runtime.InteropServices;
 
 namespace Jih.Unity.Infrastructure
 {
+    /// <seealso cref="ScreenSpaceConvert"/>
+    /// <inheritdoc cref="ScreenSpaceConvert"/>
     [Serializable, StructLayout(LayoutKind.Sequential, Pack = sizeof(float))]
     public struct ScreenM : IEquatable<ScreenM>, IFormattable
     {

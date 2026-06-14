@@ -12,6 +12,8 @@ using System.Runtime.InteropServices;
 
 namespace Jih.Unity.Infrastructure
 {
+    /// <seealso cref="ScreenSpaceConvert"/>
+    /// <inheritdoc cref="ScreenSpaceConvert"/>
     [Serializable, StructLayout(LayoutKind.Sequential, Pack = sizeof(float))]
     public struct ScreenR : IEquatable<ScreenR>, IFormattable
     {
@@ -52,6 +54,11 @@ namespace Jih.Unity.Infrastructure
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScreenR Union(ScreenR a, ScreenR b)
         {
+            if (a.IsEmpty || b.IsEmpty)
+            {
+                return Empty;
+            }
+
             float x = MathF.Min(a.X, b.X);
             float right = MathF.Max(a.Right, b.Right);
             float y = MathF.Min(a.Y, b.Y);

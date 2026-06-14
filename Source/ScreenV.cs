@@ -12,6 +12,8 @@ using System.Runtime.InteropServices;
 
 namespace Jih.Unity.Infrastructure
 {
+    /// <seealso cref="ScreenSpaceConvert"/>
+    /// <inheritdoc cref="ScreenSpaceConvert"/>
     [Serializable, StructLayout(LayoutKind.Sequential, Pack = sizeof(float))]
     public struct ScreenV : IEquatable<ScreenV>, IFormattable
     {
@@ -36,6 +38,11 @@ namespace Jih.Unity.Infrastructure
             return new ScreenV(left.X * right, left.Y * right);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScreenV Multiply(float left, ScreenV right)
+        {
+            return new ScreenV(left * right.X, left * right.Y);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScreenV Divide(ScreenV left, ScreenV right)
         {
             return new ScreenV(left.X / right.X, left.Y / right.Y);
@@ -44,6 +51,11 @@ namespace Jih.Unity.Infrastructure
         public static ScreenV Divide(ScreenV left, float right)
         {
             return new ScreenV(left.X / right, left.Y / right);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScreenV Divide(float left, ScreenV right)
+        {
+            return new ScreenV(left / right.X, left / right.Y);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScreenV SafeDivide(ScreenV left, ScreenV right, ScreenV fallback = default)
@@ -60,6 +72,13 @@ namespace Jih.Unity.Infrastructure
                 return fallback;
             }
             return Divide(left, right);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScreenV SafeDivide(float left, ScreenV right, ScreenV fallback = default)
+        {
+            return new ScreenV(
+                right.X == 0f ? fallback.X : (left / right.X),
+                right.Y == 0f ? fallback.Y : (left / right.Y));
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScreenV Inverse(ScreenV left)
@@ -191,6 +210,33 @@ namespace Jih.Unity.Infrastructure
         public static ScreenV RotateCcw90(ScreenV left)
         {
             return new ScreenV(left.Y, -left.X);
+        }
+
+        /// <inheritdoc cref="MathEx.RadiusVector(float)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScreenV RadiusVector(float radians)
+        {
+            return new ScreenV(MathF.Cos(radians), MathF.Sin(radians));
+        }
+        /// <inheritdoc cref="MathEx.RadiusRadians(UnityEngine.Vector2)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float RadiusRadians(ScreenV v)
+        {
+            return MathF.Atan2(v.Y, v.X);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float InterRadians(ScreenV from, ScreenV to)
+        {
+            float a = from.LengthSquared() * to.LengthSquared();
+            if (a < 1e-5f)
+            {
+                return 0f;
+            }
+
+            a = MathF.Sqrt(a);
+            float b = Math.Clamp(Dot(from, to) / a, -1f, 1f);
+            return MathF.Acos(b);
         }
 
         public static ScreenV Up => new(0f, -1f);
@@ -330,6 +376,19 @@ namespace Jih.Unity.Infrastructure
             return RotateCcw90(this);
         }
 
+        /// <inheritdoc cref="RadiusRadians(ScreenV)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly float RadiusRadians()
+        {
+            return RadiusRadians(this);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly float InterRadians(ScreenV to)
+        {
+            return InterRadians(this, to);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly ScreenV Transform(in ScreenM m)
         {
@@ -407,12 +466,22 @@ namespace Jih.Unity.Infrastructure
             return Multiply(left, right);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScreenV operator *(float left, ScreenV right)
+        {
+            return Multiply(left, right);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScreenV operator /(ScreenV left, ScreenV right)
         {
             return Divide(left, right);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ScreenV operator /(ScreenV left, float right)
+        {
+            return Divide(left, right);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ScreenV operator /(float left, ScreenV right)
         {
             return Divide(left, right);
         }
