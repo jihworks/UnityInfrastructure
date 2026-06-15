@@ -37,7 +37,7 @@ namespace Jih.Unity.Infrastructure.Collections
                     return;
                 }
                 _innerList[index] = value;
-                _isDirty = true;
+                IsDirty = true;
             }
         }
 
@@ -62,40 +62,40 @@ namespace Jih.Unity.Infrastructure.Collections
         public void Add(T item)
         {
             _innerList.Add(item);
-            _isDirty = true;
+            IsDirty = true;
         }
 
         public void AddRange(IEnumerable<T> items)
         {
             int count = _innerList.Count;
             _innerList.AddRange(items);
-            _isDirty |= count != _innerList.Count;
+            IsDirty |= count != _innerList.Count;
         }
 
         public void Insert(int index, T item)
         {
             _innerList.Insert(index, item);
-            _isDirty = true;
+            IsDirty = true;
         }
 
         public bool Remove(T item)
         {
             bool result = _innerList.Remove(item);
-            _isDirty |= result;
+            IsDirty |= result;
             return result;
         }
 
         public void RemoveAt(int index)
         {
             _innerList.RemoveAt(index);
-            _isDirty = true;
+            IsDirty = true;
         }
 
         public void Clear()
         {
             bool anyExisted = _innerList.Count > 0;
             _innerList.Clear();
-            _isDirty |= anyExisted;
+            IsDirty |= anyExisted;
         }
 
         public bool Contains(T item)
