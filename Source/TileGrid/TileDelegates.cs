@@ -5,9 +5,27 @@
 
 #nullable enable
 
+using System.Collections.Generic;
+
 namespace Jih.Unity.Infrastructure.TileGrid
 {
-    public delegate TileCell CreateTileCellDelegate(TileMap map, TileCellCoord coord);
-    public delegate TileVertex CreateTileVertexDelegate(TileMap map, TileVertexCoord coord);
-    public delegate TileEdge CreateTileEdgeDelegate(TileEdgeCoord coord, TileVertex vertex0, TileVertex vertex1, TileCell rightCell);
+    public delegate TileCell CreateTileCellDelegate(TileMap map, TileCoord coord);
+    public delegate TileVertex CreateTileVertexDelegate(TileMap map, TileVertexIndex index, TileCoordF coord, TileCoordF64 coordF64);
+    public delegate TileEdge CreateTileEdgeDelegate(TileEdgeIndex index, TileVertex vertex0, TileVertex vertex1, TileCell rightCell);
+    
+    /// <remarks>
+    /// Default implmentation is calling <see cref="TileCell.EnumerateOrthogonals"/> with <paramref name="current"/>.<br/>
+    /// Should return next path candidate cells except not accessable from the <paramref name="current"/>.
+    /// </remarks>
+    public delegate IEnumerable<TileCell> TilePathAccess(TileCell current);
+    /// <remarks>
+    /// Default implmentation is <c>1</c>.<br/>
+    /// Should be bigger or eqaul than 1. It will be maximized by 1. Lower value is better.
+    /// </remarks>
+    public delegate int TilePathCost(TileCell current, TileCell next);
+    /// <remarks>
+    /// Default implmentation is <c>0</c>.<br/>
+    /// Should be bigger or eqaul than 0. It will be maximized by 0. Lower value is better.
+    /// </remarks>
+    public delegate int TilePathHeuristic(TileCell goal, TileCell next);
 }

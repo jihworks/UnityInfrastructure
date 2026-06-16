@@ -37,8 +37,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         /// </remarks>
         public HexaCell? GetNeighbor(HexaNeighborPosition position)
         {
-            HexaMap map = CheckMap(nameof(GetNeighbor));
-            return map.GetCell(GetNeighborCoord(position));
+            return CheckMap().GetCell(GetNeighborCoord(position));
         }
         /// <remarks>
         /// <see cref="Map"/> required.
@@ -81,8 +80,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         /// </remarks>
         public HexaCell? GetDiagonal(HexaDiagonalPosition position)
         {
-            HexaMap map = CheckMap(nameof(GetDiagonal));
-            return map.GetCell(GetDiagonalCoord(position));
+            return CheckMap().GetCell(GetDiagonalCoord(position));
         }
         /// <remarks>
         /// <see cref="Map"/> required.
@@ -143,7 +141,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        HexaMap CheckMap(string context)
+        HexaMap CheckMap([CallerMemberName] string context = nameof(HexaAnchor))
         {
             if (Map is null)
             {

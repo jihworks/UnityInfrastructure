@@ -114,6 +114,13 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         {
             return ((int)position) * 60 - 90;
         }
+        /// <inheritdoc cref="GetRadiusDegrees(HexaVertexPosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetRadiusDegreesF(this HexaVertexPosition position)
+        {
+            return GetRadiusDegrees(position);
+        }
+
         /// <inheritdoc cref="Next(HexaNeighborPosition)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaVertexPosition Next(this HexaVertexPosition position)
@@ -139,6 +146,13 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         {
             return ((int)position) * 60 - 60;
         }
+        /// <inheritdoc cref="GetRadiusDegrees(HexaEdgePosition)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float GetRadiusDegreesF(this HexaEdgePosition position)
+        {
+            return GetRadiusDegrees(position);
+        }
+
         /// <inheritdoc cref="Next(HexaNeighborPosition)"/>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static HexaEdgePosition Next(this HexaEdgePosition position)

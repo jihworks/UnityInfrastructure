@@ -13,25 +13,34 @@ namespace Jih.Unity.Infrastructure.TileGrid
     {
         public TileMap Map { get; }
 
-        public TileCellCoord Coord { get; }
+        public TileCoord Coord { get; }
 
         internal TileVertex[] VerticesInternal { get; } = new TileVertex[4];
+        /// <summary>
+        /// Index: <see cref="TileVertexPosition"/>
+        /// </summary>
         public IReadOnlyList<TileVertex> Vertices => VerticesInternal;
 
-        public TileVertex TopLeftVertex => VerticesInternal[(int)TileDiagonalPosition.TL];
-        public TileVertex TopRightVertex => VerticesInternal[(int)TileDiagonalPosition.TR];
-        public TileVertex BottomRightVertex => VerticesInternal[(int)TileDiagonalPosition.BR];
-        public TileVertex BottomLeftVertex => VerticesInternal[(int)TileDiagonalPosition.BL];
+        public TileVertex TopLeftVertex => VerticesInternal[(int)TileVertexPosition.TL];
+        public TileVertex TopRightVertex => VerticesInternal[(int)TileVertexPosition.TR];
+        public TileVertex BottomRightVertex => VerticesInternal[(int)TileVertexPosition.BR];
+        public TileVertex BottomLeftVertex => VerticesInternal[(int)TileVertexPosition.BL];
 
         internal TileEdge[] EdgesInternal { get; } = new TileEdge[4];
+        /// <summary>
+        /// Index: <see cref="TileEdgePosition"/>
+        /// </summary>
         public IReadOnlyList<TileEdge> Edges => EdgesInternal;
 
-        public TileEdge TopEdge => EdgesInternal[(int)TileOrthogonalPosition.T];
-        public TileEdge RightEdge => EdgesInternal[(int)TileOrthogonalPosition.R];
-        public TileEdge BottomEdge => EdgesInternal[(int)TileOrthogonalPosition.B];
-        public TileEdge LeftEdge => EdgesInternal[(int)TileOrthogonalPosition.L];
+        public TileEdge TopEdge => EdgesInternal[(int)TileEdgePosition.T];
+        public TileEdge RightEdge => EdgesInternal[(int)TileEdgePosition.R];
+        public TileEdge BottomEdge => EdgesInternal[(int)TileEdgePosition.B];
+        public TileEdge LeftEdge => EdgesInternal[(int)TileEdgePosition.L];
 
         internal TileCell?[] OrthogonalsInternal { get; } = new TileCell?[4];
+        /// <summary>
+        /// Index: <see cref="TileOrthogonalPosition"/>
+        /// </summary>
         public IReadOnlyList<TileCell?> Orthogonals => OrthogonalsInternal;
 
         public TileCell? TopCell => OrthogonalsInternal[(int)TileOrthogonalPosition.T];
@@ -40,6 +49,9 @@ namespace Jih.Unity.Infrastructure.TileGrid
         public TileCell? LeftCell => OrthogonalsInternal[(int)TileOrthogonalPosition.L];
 
         internal TileCell?[] DiagonalsInternal { get; } = new TileCell?[4];
+        /// <summary>
+        /// Index: <see cref="TileDiagonalPosition"/>
+        /// </summary>
         public IReadOnlyList<TileCell?> Diagonals => DiagonalsInternal;
 
         public TileCell? TopLeftCell => DiagonalsInternal[(int)TileDiagonalPosition.TL];
@@ -47,10 +59,20 @@ namespace Jih.Unity.Infrastructure.TileGrid
         public TileCell? BottomRightCell => DiagonalsInternal[(int)TileDiagonalPosition.BR];
         public TileCell? BottomLeftCell => DiagonalsInternal[(int)TileDiagonalPosition.BL];
 
-        public TileCell(TileMap map, TileCellCoord coord)
+        public TileCell(TileMap map, TileCoord coord)
         {
             Map = map;
             Coord = coord;
+        }
+
+        public TileCell? GetOrthogonal(TileOrthogonalPosition position)
+        {
+            return OrthogonalsInternal[(int)position];
+        }
+
+        public TileCell? GetDiagonal(TileDiagonalPosition position)
+        {
+            return DiagonalsInternal[(int)position];
         }
 
         public IEnumerable<TileCell> EnumerateOrthogonals()

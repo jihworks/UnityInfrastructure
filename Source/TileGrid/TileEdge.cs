@@ -14,7 +14,7 @@ namespace Jih.Unity.Infrastructure.TileGrid
     {
         public TileMap Map => Vertex0.Map;
 
-        public TileEdgeCoord Coord { get; }
+        public TileEdgeIndex Index { get; }
 
         public TileVertex Vertex0 { get; }
         public TileVertex Vertex1 { get; }
@@ -35,9 +35,9 @@ namespace Jih.Unity.Infrastructure.TileGrid
         /// </remarks>
         public TileCell? LeftCell { get; internal set; }
 
-        public TileEdge(TileEdgeCoord coord, TileVertex vertex0, TileVertex vertex1, TileCell rightCell)
+        public TileEdge(TileEdgeIndex index, TileVertex vertex0, TileVertex vertex1, TileCell rightCell)
         {
-            Coord = coord;
+            Index = index;
             Vertex0 = vertex0;
             Vertex1 = vertex1;
             RightCell = rightCell;
@@ -47,7 +47,7 @@ namespace Jih.Unity.Infrastructure.TileGrid
         {
             if (!TryGetCwOrder(cell, out from, out to))
             {
-                throw new ArgumentException($"The cell {cell.Coord} is not adjacent to edge {Coord}.", nameof(cell));
+                throw new ArgumentException($"The cell {cell.Coord} is not adjacent to edge {Index}.", nameof(cell));
             }
         }
         public bool TryGetCwOrder(TileCell cell, out TileVertex from, out TileVertex to)

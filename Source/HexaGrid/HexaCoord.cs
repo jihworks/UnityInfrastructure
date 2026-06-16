@@ -186,6 +186,15 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             return HashCode.Combine(A, B, C);
         }
 
+        public static bool operator ==(HexaCoord left, HexaCoord right)
+        {
+            return left.Equals(right);
+        }
+        public static bool operator !=(HexaCoord left, HexaCoord right)
+        {
+            return !(left == right);
+        }
+
         public static HexaCoord operator +(HexaCoord left, HexaCoord right)
         {
             return Add(left, right);
@@ -206,15 +215,6 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         public static implicit operator HexaCoordF64(HexaCoord coord)
         {
             return new HexaCoordF64(coord.A, coord.B, coord.C);
-        }
-
-        public static bool operator ==(HexaCoord left, HexaCoord right)
-        {
-            return left.Equals(right);
-        }
-        public static bool operator !=(HexaCoord left, HexaCoord right)
-        {
-            return !(left == right);
         }
     }
 }

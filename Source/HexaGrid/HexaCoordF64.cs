@@ -20,7 +20,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         {
             return new(left.A - right.A, left.B - right.B, left.C - right.C);
         }
-        public static HexaCoordF64 Multiply(in HexaCoordF64 left, int scale)
+        public static HexaCoordF64 Multiply(in HexaCoordF64 left, F64 scale)
         {
             return new(left.A * scale, left.B * scale, left.C * scale);
         }
@@ -98,6 +98,15 @@ namespace Jih.Unity.Infrastructure.HexaGrid
             return HashCode.Combine(A, B, C);
         }
 
+        public static bool operator ==(HexaCoordF64 left, HexaCoordF64 right)
+        {
+            return left.Equals(right);
+        }
+        public static bool operator !=(HexaCoordF64 left, HexaCoordF64 right)
+        {
+            return !(left == right);
+        }
+
         public static HexaCoordF64 operator +(HexaCoordF64 left, HexaCoordF64 right)
         {
             return Add(left, right);
@@ -106,7 +115,7 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         {
             return Subtract(left, right);
         }
-        public static HexaCoordF64 operator *(HexaCoordF64 left, int scale)
+        public static HexaCoordF64 operator *(HexaCoordF64 left, F64 scale)
         {
             return Multiply(left, scale);
         }
@@ -118,15 +127,6 @@ namespace Jih.Unity.Infrastructure.HexaGrid
         public static explicit operator HexaCoord(HexaCoordF64 hexCoord)
         {
             return Round(hexCoord);
-        }
-
-        public static bool operator ==(HexaCoordF64 left, HexaCoordF64 right)
-        {
-            return left.Equals(right);
-        }
-        public static bool operator !=(HexaCoordF64 left, HexaCoordF64 right)
-        {
-            return !(left == right);
         }
     }
 }
