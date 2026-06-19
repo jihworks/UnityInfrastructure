@@ -5,7 +5,6 @@
 
 #nullable enable
 
-using Jih.Unity.Infrastructure.Collections;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -101,7 +100,7 @@ namespace Jih.Unity.Infrastructure.Geometries
                 UVSet uvSet = new(vertexCount);
                 uvSets[u] = uvSet;
 
-                AttributeCollection<Vector2> texCoords = uvSet._texCoords;
+                AttributeCollection<Vector4> texCoords = uvSet._texCoords;
                 mesh.GetUVs(u, texCoords);
 
                 if (texCoords.Count < vertexCount)
@@ -410,7 +409,7 @@ namespace Jih.Unity.Infrastructure.Geometries
                     continue;
                 }
 
-                List<Vector2> destTexCoords = destUVSet._texCoords;
+                List<Vector4> destTexCoords = destUVSet._texCoords;
 
                 UVSet? srcUVSet = other._uvSets[u];
                 if (srcUVSet is not null)
@@ -512,7 +511,7 @@ namespace Jih.Unity.Infrastructure.Geometries
             }
         }
 
-        public void Append(IReadOnlyList<VertexData> vertices, IReadOnlyList<int> indices)
+        public void Append<TVertexData>(IReadOnlyList<TVertexData> vertices, IReadOnlyList<int> indices) where TVertexData : struct, IVertexData
         {
             int baseIndex = _positions.Count;
 
@@ -555,7 +554,7 @@ namespace Jih.Unity.Infrastructure.Geometries
                     continue;
                 }
 
-                List<Vector2> destTexCoords = destUVSet._texCoords;
+                List<Vector4> destTexCoords = destUVSet._texCoords;
                 destTexCoords.AddMultiple(fallback.GetUV(u), otherVertexCount);
             }
 
@@ -628,7 +627,7 @@ namespace Jih.Unity.Infrastructure.Geometries
         ///   2
         /// </code>
         /// </remarks>
-        public RangeInt AppendTriangle(in VertexData v0, in VertexData v1, in VertexData v2)
+        public RangeInt AppendTriangle<TVertexData>(in TVertexData v0, in TVertexData v1, in TVertexData v2) where TVertexData : struct, IVertexData
         {
             int baseIndex = _positions.Count;
             AddVertex(v0);
@@ -654,7 +653,7 @@ namespace Jih.Unity.Infrastructure.Geometries
         /// 1 - 3
         /// </code>
         /// </remarks>
-        public RangeInt AppendQuad(in VertexData v0, in VertexData v1, in VertexData v2, in VertexData v3)
+        public RangeInt AppendQuad<TVertexData>(in TVertexData v0, in TVertexData v1, in TVertexData v2, in TVertexData v3) where TVertexData : struct, IVertexData
         {
             int baseIndex = _positions.Count;
             AddVertex(v0);
@@ -686,12 +685,7 @@ namespace Jih.Unity.Infrastructure.Geometries
         /// 1 - c - 4
         /// </code>
         /// </remarks>
-        public RangeInt AppendFan(in VertexData center, IEnumerable<VertexData> cwVertices)
-        {
-            return AppendNGon_Impl(center, cwVertices, addLast: false, "Fan");
-        }
-        /// <inheritdoc cref="AppendFan(in VertexData, IEnumerable{VertexData})"/>
-        public RangeInt AppendFan<TStructList>(in VertexData center, in TStructList cwVertices) where TStructList : struct, IStructList<VertexData>
+        public RangeInt AppendFan<TVertexData>(in TVertexData center, ReadOnlySpan<TVertexData> cwVertices) where TVertexData : struct, IVertexData
         {
             return AppendNGon_Impl(center, cwVertices, addLast: false, "Fan");
         }
@@ -710,18 +704,13 @@ namespace Jih.Unity.Infrastructure.Geometries
         ///   5 - 4
         /// </code>
         /// </remarks>
-        public RangeInt AppendNGon(in VertexData center, IEnumerable<VertexData> cwVertices)
-        {
-            return AppendNGon_Impl(center, cwVertices, addLast: true, "N-gon");
-        }
-        /// <inheritdoc cref="AppendNGon(in VertexData, IEnumerable{VertexData})"/>
-        public RangeInt AppendNGon<TStructList>(in VertexData center, in TStructList cwVertices) where TStructList : struct, IStructList<VertexData>
+        public RangeInt AppendNGon<TVertexData>(in TVertexData center, ReadOnlySpan<TVertexData> cwVertices) where TVertexData : struct, IVertexData
         {
             return AppendNGon_Impl(center, cwVertices, addLast: true, "N-gon");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        RangeInt AppendNGon_Impl(in VertexData center, IEnumerable<VertexData> cwVertices, bool addLast, string context)
+        RangeInt AppendNGon_Impl<TVertexData>(in TVertexData center, ReadOnlySpan<TVertexData> cwVertices, bool addLast, string context) where TVertexData : struct, IVertexData
         {
             int centerIndex = _positions.Count;
             AddVertex(center);
@@ -756,41 +745,6 @@ namespace Jih.Unity.Infrastructure.Geometries
 
             return new RangeInt(centerIndex, count + 1);
         }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        RangeInt AppendNGon_Impl<TStructList>(in VertexData center, in TStructList cwVertices, bool addLast, string context) where TStructList : struct, IStructList<VertexData>
-        {
-            int count = cwVertices.Count;
-            if (count < 2)
-            {
-                throw new ArgumentException($"{context}'s vertices count must be at least 2. Got {count}.", nameof(cwVertices));
-            }
-
-            int centerIndex = _positions.Count;
-            AddVertex(center);
-
-            int baseIndex = _positions.Count;
-            for (int i = 0; i < count; i++)
-            {
-                AddVertex(cwVertices[i]);
-            }
-
-            SubMesh subMesh = CurrentSubMesh;
-            List<int> indices = subMesh._indices;
-            for (int i = 0; i < count - 1; i++)
-            {
-                indices.Add(centerIndex);
-                indices.Add(baseIndex + i);
-                indices.Add(baseIndex + i + 1);
-            }
-            if (addLast)
-            {
-                indices.Add(centerIndex);
-                indices.Add(baseIndex + count - 1);
-                indices.Add(baseIndex);
-            }
-
-            return new RangeInt(centerIndex, count + 1);
-        }
 
         /// <param name="recalculateNormals">If normals are collected, this flag has no effect.</param>
         /// <param name="recalculateTangents">If tangents are collected, this flag has no effect.</param>
@@ -798,14 +752,14 @@ namespace Jih.Unity.Infrastructure.Geometries
         /// This method does not close the returned <see cref="Mesh"/>. It means the <see cref="Mesh.isReadable"/> is <c>true</c>.<br/>
         /// The caller may need to call <see cref="Mesh.UploadMeshData(bool)"/> with <c>true</c> to close the <see cref="Mesh"/>.
         /// </remarks>
-        public Mesh ToTrianglesMesh(bool recalculateNormals, bool recalculateTangents, bool force32BitIndices = false)
+        public Mesh ToTrianglesMesh(bool recalculateNormals = false, bool recalculateTangents = false, bool force32BitIndices = false)
         {
             Mesh mesh = new();
             ToTrianglesMesh(mesh, recalculateNormals, recalculateTangents, force32BitIndices);
             return mesh;
         }
         /// <inheritdoc cref="ToTrianglesMesh(bool, bool, bool)"/>
-        public void ToTrianglesMesh(Mesh mesh, bool recalculateNormals, bool recalculateTangents, bool force32BitIndices = false)
+        public void ToTrianglesMesh(Mesh mesh, bool recalculateNormals = false, bool recalculateTangents = false, bool force32BitIndices = false)
         {
             mesh.Clear(keepVertexLayout: true);
 
@@ -910,7 +864,7 @@ namespace Jih.Unity.Infrastructure.Geometries
             }
         }
 
-        public void Clear()
+        public void Clear(bool keepSubMeshes = false)
         {
             _positions.Clear();
             _colors?.Clear();
@@ -922,8 +876,14 @@ namespace Jih.Unity.Infrastructure.Geometries
             _tangents?.Clear();
             _boneWeightLists?.Clear();
 
-            _subMeshes.RemoveRange(1, _subMeshes.Count - 1);
-            _subMeshes[0]._indices.Clear();
+            if (!keepSubMeshes)
+            {
+                _subMeshes.RemoveRange(1, _subMeshes.Count - 1);
+            }
+            for (int s = 0; s < _subMeshes.Count; s++)
+            {
+                _subMeshes[s]._indices.Clear();
+            }
 
             CurrentSubMeshIndex = 0;
         }
@@ -950,17 +910,17 @@ namespace Jih.Unity.Infrastructure.Geometries
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void AddVertex(in VertexData vertexData)
+        void AddVertex<TVertexData>(in TVertexData vertexData) where TVertexData : struct, IVertexData
         {
-            _positions.Add(vertexData.Position);
-            _colors?.Add(vertexData.Color);
+            _positions.Add(vertexData.GetPosition());
+            _colors?.Add(vertexData.GetColor());
             for (int i = 0; i < MaxUVSetCount; i++)
             {
                 _uvSets[i]?._texCoords.Add(vertexData.GetUV(i));
             }
-            _normals?.Add(vertexData.Normal);
-            _tangents?.Add(vertexData.Tangent);
-            _boneWeightLists?.Add(vertexData.BoneWeightList ?? Array.Empty<BoneWeight1>());
+            _normals?.Add(vertexData.GetNormal());
+            _tangents?.Add(vertexData.GetTangent());
+            _boneWeightLists?.Add(vertexData.GetBoneWeightList() ?? Array.Empty<BoneWeight1>());
         }
 
         public interface IAttributeCollection<T> : IReadOnlyList<T>
@@ -977,12 +937,12 @@ namespace Jih.Unity.Infrastructure.Geometries
 
         public class UVSet
         {
-            internal readonly AttributeCollection<Vector2> _texCoords;
-            public IAttributeCollection<Vector2> TexCoords => _texCoords;
+            internal readonly AttributeCollection<Vector4> _texCoords;
+            public IAttributeCollection<Vector4> TexCoords => _texCoords;
 
             internal UVSet(int capacity)
             {
-                _texCoords = new AttributeCollection<Vector2>(capacity);
+                _texCoords = new AttributeCollection<Vector4>(capacity);
             }
 
             public void SecureTexCoordCapacity(int desiredCapacity)
@@ -1021,83 +981,6 @@ namespace Jih.Unity.Infrastructure.Geometries
             MatchedOnly,
             AddSubMeshes,
             ThrowException,
-        }
-
-        public const int MaxUVSetCount = 8;
-    }
-
-    public struct VertexData
-    {
-        public Vector3 Position;
-        public Color Color;
-        public Vector2 UV0, UV1, UV2, UV3, UV4, UV5, UV6, UV7;
-        public Vector3 Normal;
-        public Vector4 Tangent;
-        public IReadOnlyList<BoneWeight1>? BoneWeightList;
-
-        public VertexData(Vector3 position) : this()
-        {
-            Position = position;
-        }
-        public VertexData(Vector3 position, Color color) : this()
-        {
-            Position = position;
-            Color = color;
-        }
-        public VertexData(Vector3 position, Vector2 uv0) : this()
-        {
-            Position = position;
-            UV0 = uv0;
-        }
-        public VertexData(Vector3 position, Color color, Vector2 uv0) : this()
-        {
-            Position = position;
-            Color = color;
-            UV0 = uv0;
-        }
-        public VertexData(Vector3 position, Vector2 uv0, Vector3 normal) : this()
-        {
-            Position = position;
-            UV0 = uv0;
-            Normal = normal;
-        }
-        public VertexData(Vector3 position, Color color, Vector2 uv0, Vector3 normal) : this()
-        {
-            Position = position;
-            Color = color;
-            UV0 = uv0;
-            Normal = normal;
-        }
-
-        public readonly Vector2 GetUV(int i)
-        {
-            return i switch
-            {
-                0 => UV0,
-                1 => UV1,
-                2 => UV2,
-                3 => UV3,
-                4 => UV4,
-                5 => UV5,
-                6 => UV6,
-                7 => UV7,
-                _ => throw new ArgumentOutOfRangeException(nameof(i)),
-            };
-        }
-        public void SetUV(int i, Vector2 value)
-        {
-            switch (i)
-            {
-                case 0: UV0 = value; break;
-                case 1: UV1 = value; break;
-                case 2: UV2 = value; break;
-                case 3: UV3 = value; break;
-                case 4: UV4 = value; break;
-                case 5: UV5 = value; break;
-                case 6: UV6 = value; break;
-                case 7: UV7 = value; break;
-                default: throw new ArgumentOutOfRangeException(nameof(i));
-            }
         }
 
         public const int MaxUVSetCount = 8;
