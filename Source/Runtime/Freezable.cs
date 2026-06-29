@@ -186,7 +186,11 @@ namespace Jih.Unity.Infrastructure.Runtime
         {
             get
             {
-                if (!CanAccess)
+                if (_target is null)
+                {
+                    throw new NullReferenceException($"Ref target '{typeof(TFreezable)}' is null.");
+                }
+                if (_target.Generation != Generation)
                 {
                     throw new InvalidOperationException($"Cannot ref target '{typeof(TFreezable)}' because generation mismatched.");
                 }
@@ -195,6 +199,8 @@ namespace Jih.Unity.Infrastructure.Runtime
         }
 
         public readonly uint Generation;
+
+        public readonly bool IsNull => _target is null;
 
 #if INFRASTRUCTURE_USE_NULL_STATES
         [MemberNotNullWhen(true, nameof(Target))]
